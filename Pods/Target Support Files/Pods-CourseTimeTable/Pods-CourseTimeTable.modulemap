@@ -1,0 +1,6 @@
+framework module Pods_CourseTimeTable {
+  umbrella header "Pods-CourseTimeTable-umbrella.h"
+
+  export *
+  module * { export * }
+}
