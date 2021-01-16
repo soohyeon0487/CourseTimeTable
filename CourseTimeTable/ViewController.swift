@@ -7,6 +7,8 @@
 
 import UIKit
 import SnapKit
+import RxSwift
+import RxCocoa
 
 class ViewController: UIViewController {
 
@@ -14,11 +16,8 @@ class ViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-         
-        // 임시 변수
         
-        // NavigationBarItem
-        self.navigationItem.title = "\(self.userName ?? "Guest")님의 강의 시간표"
+        self.loadUserList()
         
         let addBtn = UIBarButtonItem()
         
@@ -41,12 +40,33 @@ class ViewController: UIViewController {
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        self.navigationItem.title = "\(self.userName ?? "Guest")님의 강의 시간표"
+        let name = UserDefaults.standard.string(forKey: UserInfoKey.currentUser) ?? ""
+        
+        self.navigationItem.title = "\(name != "" ? name : "Guest")님의 강의 시간표"
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         self.navigationItem.title = ""
     }
+    
+    func loadUserList() {
+        
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
+            return
+        }
+        
+        let userDefault = UserDefaults.standard
+        let savedUserList = userDefault.stringArray(forKey: UserInfoKey.userList)
+        
+        if savedUserList?.count == 0 {
+            return
+        }
+        
+        savedUserList.map {
+            appDelegate.userNameList.append(contentsOf: $0)
+        }
+    }
+    
     
     func drawAddCourseBtn() {
         

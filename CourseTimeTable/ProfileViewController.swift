@@ -6,26 +6,52 @@
 //
 
 import UIKit
+import RxSwift
+import RxCocoa
 
 
-class ProfileViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UITableViewDelegate, UITableViewDataSource {
+class ProfileViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UIPickerViewDelegate, UIPickerViewDataSource {
+    
+    let viewModel = ProfileViewModel()
+    var disposedBag = DisposeBag()
     
     let PROFILE_IMAGE_WIDTH: CGFloat = 200
     
-    let userInfo = UserInfo()
-    
     let profileImageView = UIImageView()
-    let userInfoTableView = UITableView()
+    
+    let nameLabel = UILabel()
+    let emailLabel = UILabel()
+    let registerLabel = UILabel()
+    
+    let noNameLabel = UILabel()
+    let nameValue = UILabel()
+    let emailValue = UILabel()
+    let gradeValue = UILabel()
+    let semesterValue = UILabel()
     
     let removeUserBtn = UIButton(type: .system)
+    
+    let namePicker = UIImagePickerController()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         self.drawNavigationBarItem()
         self.drawProfileImageView()
-        self.drawUserInfoTableView()
+        self.drawUserInfoView()
         self.drawRemoveUserButton()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        self.viewModel.changeUser(name:UserDefaults.standard.string(forKey: UserInfoKey.currentUser) ?? "")
+        
+        self.drawProfileImageView()
+        self.drawUserInfoView()
+        self.drawRemoveUserButton()
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        self.disposedBag = DisposeBag()
     }
     
     func drawNavigationBarItem() {
@@ -48,12 +74,9 @@ class ProfileViewController: UIViewController, UIImagePickerControllerDelegate, 
         self.present(createUserVC, animated: true)
     }
     
-    
-    
     // ProfileView
     func drawProfileImageView() {
         
-        self.profileImageView.image = userInfo.profileImage
         self.profileImageView.tintColor = .black
         
         self.profileImageView.layer.cornerRadius = self.PROFILE_IMAGE_WIDTH / 5
@@ -62,21 +85,25 @@ class ProfileViewController: UIViewController, UIImagePickerControllerDelegate, 
         
         self.view.addSubview(profileImageView)
         self.profileImageView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(tapProfileImageView(_:))))
-        self.profileImageView.isUserInteractionEnabled = true
+        
         
         self.profileImageView.snp.makeConstraints( { subView in
             subView.centerX.equalTo(self.view.snp.centerX)
             subView.top.equalToSuperview().offset(75)
             subView.width.height.equalTo(self.PROFILE_IMAGE_WIDTH)
         })
+        
+        self.viewModel.profileImage
+            .bind(to: self.profileImageView.rx.image)
+            .disposed(by: self.disposedBag)
+        
+        self.viewModel.isEmptyName
+            .map({!$0})
+            .bind(to: self.profileImageView.rx.isUserInteractionEnabled)
+            .disposed(by: self.disposedBag)
     }
     
     @objc func tapProfileImageView(_ sender: Any) {
-        
-        guard self.userInfo.name == "" else {
-            print("사용자 등록 필요")
-            return
-        }
         
         let alert = UIAlertController(title: nil, message: "사진을 가져올 곳을 선택해 주세요", preferredStyle: .actionSheet)
         
@@ -113,79 +140,173 @@ class ProfileViewController: UIViewController, UIImagePickerControllerDelegate, 
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         if let img = info[UIImagePickerController.InfoKey.editedImage] as? UIImage {
-            self.userInfo.profileImage = img
-            self.profileImageView.image = img
+            
+            self.viewModel.changeProfileImage(image: img)
         }
         
         picker.dismiss(animated: true)
     }
-    
-    
-    
-    
+
     // UserInfoTableView
-    func drawUserInfoTableView() {
+    func drawUserInfoView() {
         
-        self.view.addSubview(userInfoTableView)
+        let userInfoView = UIView()
         
-        userInfoTableView.delegate = self
-        userInfoTableView.dataSource = self
+        self.view.addSubview(userInfoView)
         
-        self.userInfoTableView.snp.makeConstraints( { subView in
+        userInfoView.snp.makeConstraints( { subView in
             subView.top.equalTo(self.profileImageView.snp.bottom).offset(50)
             subView.width.centerX.equalToSuperview()
             subView.height.equalTo(150)
         })
         
-    }
-    
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        self.noNameLabel.text = "사용자를 등록 혹은 선택해주세요"
+        self.noNameLabel.textAlignment = .center
+        self.noNameLabel.adjustsFontSizeToFitWidth = true
+        self.noNameLabel.isUserInteractionEnabled = true
+        self.noNameLabel.layer.borderWidth = 1
+        //self.noNameLabel.addGestureRecognizer(UIGestureRecognizer(target: self, action: #selector()))
         
-        // name
-        // email
-        // grade + semester
+        self.nameLabel.text = "이름"
+        self.nameLabel.textAlignment = .center
+        self.nameLabel.adjustsFontSizeToFitWidth = true
         
-        return 3
-    }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = UITableViewCell.init(style: .value1, reuseIdentifier: "cell")
+        self.emailLabel.text = "이메일"
+        self.emailLabel.textAlignment = .center
+        self.emailLabel.adjustsFontSizeToFitWidth = true
         
-        cell.accessoryType = .disclosureIndicator
+        self.registerLabel.text = "학기 정보"
+        self.registerLabel.textAlignment = .center
+        self.registerLabel.adjustsFontSizeToFitWidth = true
         
-        switch indexPath.row {
-        case 0:
-            cell.textLabel?.text = "이름"
-            cell.detailTextLabel?.text = self.userInfo.name
-        case 1:
-            cell.textLabel?.text = "이메일"
-            cell.detailTextLabel?.text = self.userInfo.email
-        case 2:
-            cell.textLabel?.text = "학사 정보"
-            cell.detailTextLabel?.text = self.userInfo.registerData
-        default:
-            ()
-        }
+        userInfoView.addSubview(self.noNameLabel)
+        userInfoView.addSubview(self.nameLabel)
+        userInfoView.addSubview(self.emailLabel)
+        userInfoView.addSubview(self.registerLabel)
         
-        return cell
-    }
-    
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        self.noNameLabel.snp.makeConstraints( { subView in
+            subView.height.equalTo(50)
+            subView.top.left.right.equalToSuperview().inset(40)
+        })
         
-        if self.userInfo.name == nil {
-            print("사용자 등록 필요")
-        } else {
-            switch indexPath.row {
-            case 0:
-                print("사용자 전환 창")
-            case 1:
-                print("이메일 변경 창")
-            case 2:
-                print("학사 정보 등록 창")
-            default:
-                ()
-            }
-        }
+        self.nameLabel.snp.makeConstraints( { subView in
+            subView.width.equalTo(100)
+            subView.height.equalTo(30)
+            subView.top.equalToSuperview().offset(40)
+            subView.left.equalToSuperview().offset(30)
+        })
+        
+        self.emailLabel.snp.makeConstraints( { subView in
+            subView.width.equalTo(100)
+            subView.height.equalTo(30)
+            subView.top.equalTo(nameLabel.snp.bottom).offset(30)
+            subView.left.equalToSuperview().offset(30)
+        })
+        
+        self.registerLabel.snp.makeConstraints( { subView in
+            subView.width.equalTo(100)
+            subView.height.equalTo(30)
+            subView.top.equalTo(emailLabel.snp.bottom).offset(30)
+            subView.left.equalToSuperview().offset(30)
+        })
+        
+        self.nameValue.textAlignment = .right
+        self.nameValue.adjustsFontSizeToFitWidth = true
+        self.nameValue.isUserInteractionEnabled = true
+        //self.nameValue.addGestureRecognizer(UIGestureRecognizer(target: self, action: #selector()))
+        
+        self.emailValue.textAlignment = .right
+        self.emailValue.adjustsFontSizeToFitWidth = true
+        
+        self.gradeValue.textAlignment = .right
+        self.gradeValue.adjustsFontSizeToFitWidth = true
+        
+        self.semesterValue.textAlignment = .center
+        self.semesterValue.adjustsFontSizeToFitWidth = true
+        
+        userInfoView.addSubview(self.nameValue)
+        userInfoView.addSubview(self.emailValue)
+        userInfoView.addSubview(self.gradeValue)
+        userInfoView.addSubview(self.semesterValue)
+        
+        self.nameValue.snp.makeConstraints( { subView in
+            subView.height.equalTo(30)
+            subView.top.equalToSuperview().offset(40)
+            subView.right.equalToSuperview().inset(40)
+            subView.left.equalTo(self.nameLabel.snp.right)
+        })
+        
+        self.emailValue.snp.makeConstraints( { subView in
+            subView.height.equalTo(30)
+            subView.top.equalTo(nameValue.snp.bottom).offset(30)
+            subView.right.equalToSuperview().inset(40)
+            subView.left.equalTo(self.emailLabel.snp.right)
+        })
+        
+        self.gradeValue.snp.makeConstraints( { subView in
+            subView.height.equalTo(30)
+            subView.top.equalTo(emailValue.snp.bottom).offset(30)
+            subView.left.equalTo(self.registerLabel.snp.right)
+            subView.right.equalTo(self.semesterValue.snp.left).offset(-20)
+        })
+        
+        self.semesterValue.snp.makeConstraints( { subView in
+            subView.height.equalTo(30)
+            subView.width.equalTo(50)
+            subView.top.equalTo(emailValue.snp.bottom).offset(30)
+            subView.right.equalToSuperview().inset(40)
+        })
+        
+        self.viewModel.name
+            .bind(to: self.nameValue.rx.text)
+            .disposed(by: self.disposedBag)
+        
+        self.viewModel.email
+            .bind(to: self.emailValue.rx.text)
+            .disposed(by: self.disposedBag)
+        
+        self.viewModel.grade
+            .map({"\($0) 학년"})
+            .bind(to: self.gradeValue.rx.text)
+            .disposed(by: self.disposedBag)
+        
+        self.viewModel.semester
+            .map({"\($0) 학기"})
+            .bind(to: self.semesterValue.rx.text)
+            .disposed(by: self.disposedBag)
+        
+        self.viewModel.isEmptyName
+            .map({!$0})
+            .bind(to: self.noNameLabel.rx.isHidden)
+            .disposed(by: self.disposedBag)
+        
+        self.viewModel.isEmptyName
+            .bind(to: self.nameLabel.rx.isHidden)
+            .disposed(by: self.disposedBag)
+        
+        self.viewModel.isEmptyName
+            .bind(to: self.nameValue.rx.isHidden)
+            .disposed(by: self.disposedBag)
+        
+        self.viewModel.isEmptyName
+            .bind(to: self.emailLabel.rx.isHidden)
+            .disposed(by: self.disposedBag)
+        
+        self.viewModel.isEmptyName
+            .bind(to: self.emailValue.rx.isHidden)
+            .disposed(by: self.disposedBag)
+        
+        self.viewModel.isEmptyName
+            .bind(to: self.registerLabel.rx.isHidden)
+            .disposed(by: self.disposedBag)
+        
+        self.viewModel.isEmptyName
+            .bind(to: self.gradeValue.rx.isHidden)
+            .disposed(by: self.disposedBag)
+        
+        self.viewModel.isEmptyName
+            .bind(to: self.semesterValue.rx.isHidden)
+            .disposed(by: self.disposedBag)
     }
     
     func drawRemoveUserButton() {
@@ -208,14 +329,25 @@ class ProfileViewController: UIViewController, UIImagePickerControllerDelegate, 
             subView.height.equalTo(40)
         })
         
-        if userInfo.name == nil {
-            self.removeUserBtn.isHidden = true
-        }
+        viewModel.isEmptyName
+            .bind(to: self.removeUserBtn.rx.isHidden)
+            .disposed(by: self.disposedBag)
     }
     
     @objc func clickedRemoveUserButton(_ sender: UIButton) {
+        self.viewModel.deleteUser()
+    }
+    
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
+        return 1
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
         
-        print("현재 사용자 삭제")
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
+            return 0
+        }
         
+        return appDelegate.userNameList.count
     }
 }

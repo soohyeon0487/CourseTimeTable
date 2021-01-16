@@ -6,11 +6,25 @@
 //
 
 import UIKit
+import RxSwift
+import RxCocoa
 
 class CreateUserViewController: UIViewController, UINavigationControllerDelegate, UIPickerViewDelegate, UIPickerViewDataSource {
 
+    let viewModel = CreateUserViewModel()
+    var disposedBag = DisposeBag()
+    
     let gradeList = [1, 2, 3, 4]
     let semesterList = ["봄", "여름", "가을", "겨울"]
+    
+    let backBtn = UIBarButtonItem() //(title: "닫기", style: .plain, target: self, action: #selector(self.close(_:)))
+    let saveBtn = UIBarButtonItem() //(barButtonSystemItem: .save, target: self, action: #selector(self.save(_:)))
+    
+    let nameLabel = UILabel()
+    let emailLabel = UILabel()
+    let registerLabel = UILabel()
+    let gradeLabel = UILabel()
+    let semesterLabel = UILabel()
     
     let nameInput = UITextField()
     let emailInput = UITextField()
@@ -19,18 +33,29 @@ class CreateUserViewController: UIViewController, UINavigationControllerDelegate
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         drawNavigationBarItem()
         drawInputView()
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        self.disposedBag = DisposeBag()
     }
     
     func drawNavigationBarItem() {
         
         self.navigationItem.title = "사용자 등록"
         
-        let backBtn = UIBarButtonItem(title: "닫기", style: .plain, target: self, action: #selector(self.close(_:)))
+        backBtn.title = "닫기"
+        backBtn.style = .plain
+        backBtn.target = self
+        backBtn.action = #selector(self.close(_:))
         
-        let saveBtn = UIBarButtonItem(barButtonSystemItem: .save, target: self, action: #selector(self.save(_:)))
+        saveBtn.title = "저장"
+        saveBtn.style = .plain
+        saveBtn.target = self
+        saveBtn.action = #selector(self.save(_:))
+        saveBtn.isEnabled = false
         
         self.navigationItem.leftBarButtonItem = backBtn
         self.navigationItem.rightBarButtonItem = saveBtn
@@ -43,72 +68,42 @@ class CreateUserViewController: UIViewController, UINavigationControllerDelegate
     
     @objc func save(_ sender: Any) {
         
-        var msg: String = ""
-        var nextFocus: UITextField? = nil
+        self.viewModel.createUser()
         
-        if nameInput.text == "" {
-            msg = "이름 입력칸을 채워주세요"
-            nextFocus = self.nameInput
-        } else if emailInput.text == "" {
-            msg = "이메일 입력칸을 채워주세요"
-            nextFocus = self.emailInput
-        }
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        let alert = UIAlertController(title: nil, message: msg, preferredStyle: .alert)
+        let alert = UIAlertController(title: nil, message: "사용자 등록 성공!", preferredStyle: .alert)
         
         let okBtn = UIAlertAction(title: "OK", style: .default, handler: { _ in
-            nextFocus?.becomeFirstResponder()
+            self.close(self)
         })
         
         alert.addAction(okBtn)
         
         self.present(alert, animated: true)
     }
-
+    
     func drawInputView() {
         
-        let nameLabel = UILabel()
         nameLabel.text = "이름"
         nameLabel.adjustsFontSizeToFitWidth = true
         
-        let emailLabel = UILabel()
         emailLabel.text = "이메일"
         emailLabel.adjustsFontSizeToFitWidth = true
+        emailLabel.isHidden = true
         
-        let registerLabel = UILabel()
         registerLabel.text = "학기 정보"
         registerLabel.textAlignment = .center
         registerLabel.adjustsFontSizeToFitWidth = true
+        registerLabel.isHidden = true
         
-        let gradeLabel = UILabel()
         gradeLabel.text = "학년"
         gradeLabel.textAlignment = .center
         gradeLabel.adjustsFontSizeToFitWidth = true
+        gradeLabel.isHidden = true
         
-        let semesterLabel = UILabel()
         semesterLabel.text = "학기"
         semesterLabel.textAlignment = .center
         semesterLabel.adjustsFontSizeToFitWidth = true
+        semesterLabel.isHidden = true
         
         self.view.addSubview(nameLabel)
         self.view.addSubview(emailLabel)
@@ -150,7 +145,7 @@ class CreateUserViewController: UIViewController, UINavigationControllerDelegate
             subView.right.equalToSuperview()
         })
         
-        nameInput.placeholder = "이름을 입력하세요"
+        nameInput.placeholder = "2자리 이상의 이름을 입력하세요"
         nameInput.adjustsFontSizeToFitWidth = true
         nameInput.autocapitalizationType = .none
         nameInput.autocorrectionType = .no
@@ -163,16 +158,19 @@ class CreateUserViewController: UIViewController, UINavigationControllerDelegate
         emailInput.autocapitalizationType = .none
         emailInput.autocorrectionType = .no
         emailInput.layer.borderWidth = 0
+        emailInput.isHidden = true
         
         gradePicker.dataSource = self
         gradePicker.delegate = self
         gradePicker.backgroundColor = .white
         gradePicker.tag = 0
+        gradePicker.isHidden = true
         
         semesterPicker.dataSource = self
         semesterPicker.delegate = self
         semesterPicker.backgroundColor = .white
         semesterPicker.tag = 1
+        semesterPicker.isHidden = true
         
         self.view.addSubview(nameInput)
         self.view.addSubview(emailInput)
@@ -196,12 +194,74 @@ class CreateUserViewController: UIViewController, UINavigationControllerDelegate
             subView.right.equalTo(registerLabel.snp.centerX)
             subView.top.equalTo(gradeLabel.snp.bottom)
         })
-
+        
         semesterPicker.snp.makeConstraints( { subView in
             subView.left.equalTo(registerLabel.snp.centerX)
             subView.right.equalToSuperview()
             subView.top.equalTo(semesterLabel.snp.bottom)
         })
+        
+        // Bind
+        
+        self.nameInput.rx.text.orEmpty
+            .bind(to: self.viewModel.nameText)
+            .disposed(by: self.disposedBag)
+        
+        self.emailInput.rx.text.orEmpty
+            .bind(to: self.viewModel.emailText)
+            .disposed(by: self.disposedBag)
+        
+        self.gradePicker.rx.itemSelected
+            .subscribe(onNext: { row, _ in
+                self.viewModel.gradeValue.onNext(self.gradeList[row])
+            })
+            .disposed(by: self.disposedBag)
+        
+        self.semesterPicker.rx.itemSelected
+            .subscribe(onNext: { row, _ in
+                self.viewModel.semesterValue.onNext(self.semesterList[row])
+            })
+            .disposed(by: self.disposedBag)
+        
+        // 중복 Binding을 한번에 처리 가능한가?
+        self.viewModel.isNameValid
+            .map({ !$0 })
+            .bind(to: self.emailLabel.rx.isHidden)
+            .disposed(by: self.disposedBag)
+        
+        self.viewModel.isNameValid
+            .map({ !$0 })
+            .bind(to: self.emailInput.rx.isHidden)
+            .disposed(by: self.disposedBag)
+        
+        self.viewModel.isEmailValid
+            .map({ !$0 })
+            .bind(to: self.registerLabel.rx.isHidden)
+            .disposed(by: self.disposedBag)
+        
+        self.viewModel.isEmailValid
+            .map({ !$0 })
+            .bind(to: self.gradeLabel.rx.isHidden)
+            .disposed(by: self.disposedBag)
+        
+        self.viewModel.isEmailValid
+            .map({ !$0 })
+            .bind(to: self.semesterLabel.rx.isHidden)
+            .disposed(by: self.disposedBag)
+        
+        self.viewModel.isEmailValid
+            .map({ !$0 })
+            .bind(to: self.gradePicker.rx.isHidden)
+            .disposed(by: self.disposedBag)
+        
+        self.viewModel.isEmailValid
+            .map({ !$0 })
+            .bind(to: self.semesterPicker.rx.isHidden)
+            .disposed(by: self.disposedBag)
+        
+        self.viewModel.isValid
+            .bind(to: self.saveBtn.rx.isEnabled)
+            .disposed(by: self.disposedBag)
     }
     
     func numberOfComponents(in pickerView: UIPickerView) -> Int {

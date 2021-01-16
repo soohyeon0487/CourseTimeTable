@@ -66,7 +66,6 @@
         <!--Create User View Controller-->
         <scene sceneID="Km1-aX-Ynq">
             <objects>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="r6U-IL-VBt" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
                 <viewController storyboardIdentifier="CreateUserView" id="5RY-gh-6qz" customClass="CreateUserViewController" customModule="CourseTimeTable" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="1b3-Zg-glS">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
@@ -76,6 +75,7 @@
                     </view>
                     <navigationItem key="navigationItem" id="2p3-yc-kjf"/>
                 </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="r6U-IL-VBt" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="3791" y="139"/>
         </scene>
