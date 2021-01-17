@@ -10,13 +10,19 @@ import RxCocoa
 
 class CreateUserViewModel {
     
-    let disposedBag = DisposeBag()
+    // MARK: - Property
+    
+    var appDelegate: AppDelegate? = nil
+    
+    let profile = BehaviorSubject(value: Profile(name: ""))
+    
+    let bag = DisposeBag()
     
     // input
     let nameText = BehaviorSubject(value: "")
     let emailText = BehaviorSubject(value: "")
     let gradeValue = BehaviorSubject(value: 1)
-    let semesterValue = BehaviorSubject(value: "봄")
+    let semesterValue = BehaviorSubject(value: 0)
     
     // output
     let isNameValid = BehaviorSubject(value: false)
@@ -24,6 +30,9 @@ class CreateUserViewModel {
     let isValid = BehaviorSubject(value: false)
     
     init() {
+        
+        self.appDelegate = UIApplication.shared.delegate as? AppDelegate
+        
         _ = self.nameText.distinctUntilChanged()
             .map(self.checkName)
             .bind(to: self.isNameValid)
@@ -36,6 +45,8 @@ class CreateUserViewModel {
             .bind(to: self.isValid)
     }
     
+    // MARK: - Logic
+    
     private func checkName(_ name:String) -> Bool {
         return name.count >= 2
     }
@@ -46,22 +57,20 @@ class CreateUserViewModel {
         return emailTest.evaluate(with: email)
     }
     
-    func createUser() {
+    func createUser(completion: @escaping() -> ()) {
         
-        let global = UIApplication.shared.delegate as? AppDelegate
-
         // 이름으로 생성된 plist 파일에 저장
         var customPlist = ""
         
         self.nameText
             .subscribe(onNext: {
                 customPlist = "\($0).plist"
-                global?.userNameList.append($0)
+                self.appDelegate?.userNameList.append($0)
                 UserDefaults.standard.setValue($0, forKey: UserInfoKey.currentUser)
-                UserDefaults.standard.setValue(global?.userNameList, forKey: UserInfoKey.userList)
+                UserDefaults.standard.setValue(self.appDelegate?.userNameList, forKey: UserInfoKey.userList)
                 UserDefaults.standard.synchronize()
             })
-            .disposed(by: self.disposedBag)
+            .disposed(by: self.bag)
         
         let paths = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)
         
@@ -73,26 +82,28 @@ class CreateUserViewModel {
             .subscribe(onNext: {
                 data.setValue($0, forKey: UserInfoKey.name)
             })
-            .disposed(by: self.disposedBag)
+            .disposed(by: self.bag)
         
         self.emailText
             .subscribe(onNext: {
                 data.setValue($0, forKey: UserInfoKey.email)
             })
-            .disposed(by: self.disposedBag)
+            .disposed(by: self.bag)
         
         self.gradeValue
             .subscribe(onNext: {
                 data.setValue($0, forKey: UserInfoKey.grade)
             })
-            .disposed(by: self.disposedBag)
+            .disposed(by: self.bag)
         
         self.semesterValue
             .subscribe(onNext: {
                 data.setValue($0, forKey: UserInfoKey.semester)
             })
-            .disposed(by: self.disposedBag)
+            .disposed(by: self.bag)
         
         data.write(toFile: filePath, atomically: true)
+        
+        completion()
     }
 }

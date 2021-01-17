@@ -14,6 +14,9 @@ class ViewController: UIViewController {
 
     let userName: String? = nil
     
+    //Test
+    let testLabel = UILabel()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -37,6 +40,7 @@ class ViewController: UIViewController {
         
         /// AddCourseBtn
         self.drawAddCourseBtn()
+        
     }
     
     override func viewWillAppear(_ animated: Bool) {

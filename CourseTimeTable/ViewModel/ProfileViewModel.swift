@@ -9,48 +9,17 @@ import UIKit
 import RxSwift
 import RxCocoa
 
-// UserDefault Key
-struct UserInfoKey {
-    static let currentUser = "#CurrentUserName"
-    static let userList = "#UserList"
-    static let name = "#UserName"
-    static let email = "#UserEmail"
-    static let grade = "#UserGrade"
-    static let semester = "#UserSemester"
-    static let profileImage = "#UserProfileImage"
-}
-
-
-// UserInfo
 class ProfileViewModel {
     
-    // input & output
-    let name = BehaviorSubject(value: "")
-    let email = BehaviorSubject(value: "")
-    let grade = BehaviorSubject(value: 1)
-    let semester = BehaviorSubject(value: "")
-    var profileImage = BehaviorSubject<UIImage?>(value: nil)
+    // MARK: - Property
     
-    // output
-    let isEmptyName = BehaviorSubject(value: true)
-    let registerString = BehaviorSubject(value: "")
-    let profileInfo = BehaviorSubject<[String]>(value:[])
+    let profile = BehaviorSubject(value: Profile(name: ""))
     
-    init() {
-        
-        _ = self.name
-            .map({ $0 == "" })
-            .bind(to: self.isEmptyName)
-        
-        _ = Observable.just([self.grade, self.semester])
-            .map({
-                "\($0[0])학년 \($0[1])학기"
-            })
-            .bind(to: registerString)
-        
-    }
+    let bag = DisposeBag()
     
-    func changeUser(name: String = "") {
+    // MARK: - Logic
+    
+    func changeUser(name: String = "", completion: @escaping() -> Void) {
         
         if name == "" {
             return
@@ -64,19 +33,28 @@ class ProfileViewModel {
         let filePath = path.strings(byAppendingPaths: [customPlist]).first!
         let data = NSMutableDictionary(contentsOfFile: filePath) ?? NSMutableDictionary()
         
-        self.name.onNext(name)
-        self.email.onNext(data.value(forKey: UserInfoKey.email) as? String ?? "")
-        self.grade.onNext(data.value(forKey: UserInfoKey.grade) as? Int ?? 1)
-        self.semester.onNext(data.value(forKey: UserInfoKey.semester) as? String ?? "")
+        self.profile
+            .subscribe(on: MainScheduler.instance)
+            .subscribe(onNext: { profile in
+                
+                profile.setName(name: name)
+                profile.setProfile(
+                    email: data.value(forKey: UserInfoKey.email) as? String ?? "",
+                    grade: data.value(forKey: UserInfoKey.grade) as? Int ?? 1,
+                    semester: data.value(forKey: UserInfoKey.semester) as? Int ?? 1
+                )
+                if let profileImageData = data.value(forKey: UserInfoKey.profileImage) as? Data {
+                    profile.setImage(image: UIImage(data: profileImageData))
+                } else {
+                    profile.setImage(image: nil)
+                }
+            })
+            .disposed(by: self.bag)
         
-        if let profileImageData = data.value(forKey: UserInfoKey.profileImage) as? Data {
-            self.profileImage.onNext(UIImage(data: profileImageData))
-        } else {
-            self.profileImage.onNext(UIImage(systemName: "person.fill"))
-        }
+        completion()
     }
     
-    func deleteUser() {
+    func deleteUser(completion: @escaping() -> Void) {
         
         let name = UserDefaults.standard.string(forKey: UserInfoKey.currentUser) ?? ""
         
@@ -94,29 +72,31 @@ class ProfileViewModel {
             let filemanager = FileManager.default
             
             do {
+                
                 global?.userNameList.remove(at: index)
+                
                 UserDefaults.standard.setValue(global?.userNameList, forKey: UserInfoKey.userList)
                 UserDefaults.standard.setValue("", forKey: UserInfoKey.currentUser)
                 UserDefaults.standard.synchronize()
                 
-                self.name.onNext("")
-                self.email.onNext("")
-                self.grade.onNext(1)
-                self.semester.onNext("")
-                self.profileImage.onNext(UIImage.init(systemName: "person.fill"))
-                
                 try filemanager.removeItem(atPath: filePath)
-                
                 
             } catch {
                 print("[Error \(#file):\(#function):\(#line)] 파일 삭제 \n\(filePath)\n\(error.localizedDescription)")
             }
             
-            self.name.onNext("")
+            self.profile
+                .subscribe(on: MainScheduler.instance)
+                .subscribe(onNext: { profile in
+                    profile.clear()
+                })
+                .disposed(by: self.bag)
         }
+        
+        completion()
     }
     
-    func changeProfileImage(image: UIImage) {
+    func changeProfileImage(image: UIImage, completion: @escaping() -> Void) {
         
         let name = UserDefaults.standard.string(forKey: UserInfoKey.currentUser) ?? ""
         
@@ -131,6 +111,13 @@ class ProfileViewModel {
         data.setValue(image.pngData(), forKey: UserInfoKey.profileImage)
         data.write(toFile: filePath, atomically: true)
         
-        self.profileImage.onNext(image)
+        self.profile
+            .subscribe(on: MainScheduler.instance)
+            .subscribe( onNext: { profile in
+                profile.setImage(image: image)
+            })
+            .disposed(by: self.bag)
+        
+        completion()
     }
 }

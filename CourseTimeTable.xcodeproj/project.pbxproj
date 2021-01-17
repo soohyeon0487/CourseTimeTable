@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		4E8585DA4285AC321F797684 /* Pods_CourseTimeTable.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D5CE8900D840A972033F8CE0 /* Pods_CourseTimeTable.framework */; };
+		912A7FE225B4C0650031D7A4 /* ProfileInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 912A7FE125B4C0650031D7A4 /* ProfileInfo.swift */; };
 		915FF02D25B29E8B00A20A3A /* CreateUserViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 915FF02C25B29E8B00A20A3A /* CreateUserViewModel.swift */; };
 		916DD19B25B1705E0087D96D /* AddCourseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 916DD19A25B1705E0087D96D /* AddCourseViewController.swift */; };
 		916DD19E25B1721F0087D96D /* ProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 916DD19D25B1721F0087D96D /* ProfileViewModel.swift */; };
@@ -23,6 +24,7 @@
 
 /* Begin PBXFileReference section */
 		2F5A673EC3937ACE45CBA90C /* Pods-CourseTimeTable.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CourseTimeTable.release.xcconfig"; path = "Target Support Files/Pods-CourseTimeTable/Pods-CourseTimeTable.release.xcconfig"; sourceTree = "<group>"; };
+		912A7FE125B4C0650031D7A4 /* ProfileInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileInfo.swift; sourceTree = "<group>"; };
 		915FF02C25B29E8B00A20A3A /* CreateUserViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateUserViewModel.swift; sourceTree = "<group>"; };
 		916DD19A25B1705E0087D96D /* AddCourseViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCourseViewController.swift; sourceTree = "<group>"; };
 		916DD19D25B1721F0087D96D /* ProfileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewModel.swift; sourceTree = "<group>"; };
@@ -60,6 +62,33 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		912A7FD825B4BFF80031D7A4 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				912A7FE125B4C0650031D7A4 /* ProfileInfo.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		912A7FD925B4C0060031D7A4 /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				915FF02C25B29E8B00A20A3A /* CreateUserViewModel.swift */,
+				916DD19D25B1721F0087D96D /* ProfileViewModel.swift */,
+			);
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
+		912A7FDA25B4C00D0031D7A4 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				916DD1AA25B1BC000087D96D /* CreateUserViewController.swift */,
+				916DD1A125B176510087D96D /* ProfileViewController.swift */,
+				91E6634525B167AA002F6C47 /* Main.storyboard */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
 		91E6633325B167AA002F6C47 = {
 			isa = PBXGroup;
 			children = (
@@ -81,14 +110,12 @@
 		91E6633E25B167AA002F6C47 /* CourseTimeTable */ = {
 			isa = PBXGroup;
 			children = (
+				912A7FD825B4BFF80031D7A4 /* Model */,
+				912A7FDA25B4C00D0031D7A4 /* View */,
+				912A7FD925B4C0060031D7A4 /* ViewModel */,
 				91E6633F25B167AA002F6C47 /* AppDelegate.swift */,
 				91E6634125B167AA002F6C47 /* SceneDelegate.swift */,
-				91E6634525B167AA002F6C47 /* Main.storyboard */,
 				91E6634325B167AA002F6C47 /* ViewController.swift */,
-				916DD19D25B1721F0087D96D /* ProfileViewModel.swift */,
-				916DD1A125B176510087D96D /* ProfileViewController.swift */,
-				916DD1AA25B1BC000087D96D /* CreateUserViewController.swift */,
-				915FF02C25B29E8B00A20A3A /* CreateUserViewModel.swift */,
 				916DD19A25B1705E0087D96D /* AddCourseViewController.swift */,
 				91E6634825B167AB002F6C47 /* Assets.xcassets */,
 				91E6634A25B167AB002F6C47 /* LaunchScreen.storyboard */,
@@ -223,6 +250,7 @@
 				916DD1A225B176510087D96D /* ProfileViewController.swift in Sources */,
 				916DD19E25B1721F0087D96D /* ProfileViewModel.swift in Sources */,
 				91E6634425B167AA002F6C47 /* ViewController.swift in Sources */,
+				912A7FE225B4C0650031D7A4 /* ProfileInfo.swift in Sources */,
 				915FF02D25B29E8B00A20A3A /* CreateUserViewModel.swift in Sources */,
 				916DD1AB25B1BC000087D96D /* CreateUserViewController.swift in Sources */,
 				916DD19B25B1705E0087D96D /* AddCourseViewController.swift in Sources */,
