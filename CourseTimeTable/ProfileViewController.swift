@@ -14,6 +14,7 @@ class ProfileViewController: UIViewController, UIImagePickerControllerDelegate, 
     
     let viewModel = ProfileViewModel()
     var disposedBag = DisposeBag()
+    var appDelegate: AppDelegate? = nil
     
     let PROFILE_IMAGE_WIDTH: CGFloat = 200
     
@@ -23,11 +24,13 @@ class ProfileViewController: UIViewController, UIImagePickerControllerDelegate, 
     let emailLabel = UILabel()
     let registerLabel = UILabel()
     
-    let noNameLabel = UILabel()
-    let nameValue = UILabel()
+    let noNameLabel = UITextField()
+    let nameValue = UITextField()
     let emailValue = UILabel()
     let gradeValue = UILabel()
     let semesterValue = UILabel()
+    
+    let userPicker = UIPickerView()
     
     let removeUserBtn = UIButton(type: .system)
     
@@ -36,9 +39,12 @@ class ProfileViewController: UIViewController, UIImagePickerControllerDelegate, 
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        self.appDelegate = UIApplication.shared.delegate as? AppDelegate
+        
         self.drawNavigationBarItem()
         self.drawProfileImageView()
         self.drawUserInfoView()
+        self.drawUserPickerView()
         self.drawRemoveUserButton()
     }
     
@@ -47,6 +53,7 @@ class ProfileViewController: UIViewController, UIImagePickerControllerDelegate, 
         
         self.drawProfileImageView()
         self.drawUserInfoView()
+        self.drawUserPickerView()
         self.drawRemoveUserButton()
     }
     
@@ -84,7 +91,7 @@ class ProfileViewController: UIViewController, UIImagePickerControllerDelegate, 
         self.profileImageView.layer.masksToBounds = true
         
         self.view.addSubview(profileImageView)
-        self.profileImageView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(tapProfileImageView(_:))))
+        self.profileImageView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(showImagePickerView(_:))))
         
         
         self.profileImageView.snp.makeConstraints( { subView in
@@ -103,7 +110,7 @@ class ProfileViewController: UIViewController, UIImagePickerControllerDelegate, 
             .disposed(by: self.disposedBag)
     }
     
-    @objc func tapProfileImageView(_ sender: Any) {
+    @objc func showImagePickerView(_ sender: Any) {
         
         let alert = UIAlertController(title: nil, message: "사진을 가져올 곳을 선택해 주세요", preferredStyle: .actionSheet)
         
@@ -146,7 +153,7 @@ class ProfileViewController: UIViewController, UIImagePickerControllerDelegate, 
         
         picker.dismiss(animated: true)
     }
-
+    
     // UserInfoTableView
     func drawUserInfoView() {
         
@@ -162,10 +169,9 @@ class ProfileViewController: UIViewController, UIImagePickerControllerDelegate, 
         
         self.noNameLabel.text = "사용자를 등록 혹은 선택해주세요"
         self.noNameLabel.textAlignment = .center
+        self.noNameLabel.inputView = self.userPicker
         self.noNameLabel.adjustsFontSizeToFitWidth = true
-        self.noNameLabel.isUserInteractionEnabled = true
         self.noNameLabel.layer.borderWidth = 1
-        //self.noNameLabel.addGestureRecognizer(UIGestureRecognizer(target: self, action: #selector()))
         
         self.nameLabel.text = "이름"
         self.nameLabel.textAlignment = .center
@@ -211,9 +217,8 @@ class ProfileViewController: UIViewController, UIImagePickerControllerDelegate, 
         })
         
         self.nameValue.textAlignment = .right
+        self.nameValue.inputView = self.userPicker
         self.nameValue.adjustsFontSizeToFitWidth = true
-        self.nameValue.isUserInteractionEnabled = true
-        //self.nameValue.addGestureRecognizer(UIGestureRecognizer(target: self, action: #selector()))
         
         self.emailValue.textAlignment = .right
         self.emailValue.adjustsFontSizeToFitWidth = true
@@ -252,7 +257,7 @@ class ProfileViewController: UIViewController, UIImagePickerControllerDelegate, 
         
         self.semesterValue.snp.makeConstraints( { subView in
             subView.height.equalTo(30)
-            subView.width.equalTo(50)
+            subView.width.equalTo(60)
             subView.top.equalTo(emailValue.snp.bottom).offset(30)
             subView.right.equalToSuperview().inset(40)
         })
@@ -309,6 +314,83 @@ class ProfileViewController: UIViewController, UIImagePickerControllerDelegate, 
             .disposed(by: self.disposedBag)
     }
     
+    func drawUserPickerView() {
+        
+        let toolBar = UIToolbar()
+        toolBar.frame = CGRect(x: 0, y: 0, width: 0, height: 40)
+        toolBar.barTintColor = .lightGray
+        
+        self.noNameLabel.inputAccessoryView = toolBar
+        self.nameValue.inputAccessoryView = toolBar
+        
+        let flexSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+        
+        let doneBtn = UIBarButtonItem()
+        doneBtn.title = "Done"
+        doneBtn.target = self
+        doneBtn.action = #selector(self.userPickerDone(_:))
+        
+        toolBar.setItems([flexSpace, doneBtn], animated: true)
+        
+        userPicker.dataSource = self
+        userPicker.delegate = self
+        
+        userPicker.frame = CGRect(x: 0, y: 200, width: 200, height: 150)
+    }
+    
+    @objc func userPickerDone(_ sender: UIBarButtonItem) {
+        
+        if appDelegate?.userNameList.count == 0 {
+            
+            self.view.endEditing(true)
+            
+            self.showCreateUserView(self)
+            
+        } else {
+            
+            let index = self.userPicker.selectedRow(inComponent: 0)
+            
+            self.view.endEditing(true)
+            
+            self.viewModel.changeUser(name: self.appDelegate?.userNameList[index] ?? "")
+        }
+    }
+    
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
+        return 1
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        
+        let count = appDelegate?.userNameList.count
+        
+        if count == 0 {
+            return 1
+        } else {
+            return appDelegate?.userNameList.count ?? 1
+        }
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        
+        let count = appDelegate?.userNameList.count
+        
+        if count == 0 {
+            return "사용자 추가"
+        } else {
+            return appDelegate?.userNameList[row]
+        }
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+        
+//        let count = appDelegate?.userNameList.count
+//
+//        if count == 0 {
+//            self.showCreateUserView(self)
+//        }
+    }
+    
     func drawRemoveUserButton() {
         
         self.removeUserBtn.setTitle("사용자 정보 삭제", for: .normal)
@@ -336,18 +418,5 @@ class ProfileViewController: UIViewController, UIImagePickerControllerDelegate, 
     
     @objc func clickedRemoveUserButton(_ sender: UIButton) {
         self.viewModel.deleteUser()
-    }
-    
-    func numberOfComponents(in pickerView: UIPickerView) -> Int {
-        return 1
-    }
-    
-    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
-        
-        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
-            return 0
-        }
-        
-        return appDelegate.userNameList.count
     }
 }

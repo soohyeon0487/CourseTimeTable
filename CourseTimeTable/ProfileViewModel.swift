@@ -71,6 +71,8 @@ class ProfileViewModel {
         
         if let profileImageData = data.value(forKey: UserInfoKey.profileImage) as? Data {
             self.profileImage.onNext(UIImage(data: profileImageData))
+        } else {
+            self.profileImage.onNext(UIImage(systemName: "person.fill"))
         }
     }
     
