@@ -29,6 +29,8 @@ class CreateUserViewModel {
     let isEmailValid = BehaviorSubject(value: false)
     let isValid = BehaviorSubject(value: false)
     
+    // MARK: - Init
+    
     init() {
         
         self.appDelegate = UIApplication.shared.delegate as? AppDelegate

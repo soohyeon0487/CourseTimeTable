@@ -13,19 +13,33 @@ class ProfileViewModel {
     
     // MARK: - Property
     
+    var appDelegate: AppDelegate? = nil
+    
     let profile = BehaviorSubject(value: Profile(name: ""))
     
+    let userPickerRow = BehaviorSubject(value: 0)
+    
     let bag = DisposeBag()
+    
+    // MARK: - Init
+    
+    init() {
+        self.appDelegate = UIApplication.shared.delegate as? AppDelegate
+    }
     
     // MARK: - Logic
     
     func changeUser(name: String = "", completion: @escaping() -> Void) {
         
-        if name == "" {
+        var input = name
+        
+        if input == "" {
             return
+        } else if input == UserInfoKey.name {
+            input = UserDefaults.standard.string(forKey: UserInfoKey.currentUser)!
         }
         
-        let customPlist = "\(name).plist"
+        let customPlist = "\(input).plist"
         
         let paths = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)
         
@@ -37,7 +51,7 @@ class ProfileViewModel {
             .subscribe(on: MainScheduler.instance)
             .subscribe(onNext: { profile in
                 
-                profile.setName(name: name)
+                profile.setName(name: input)
                 profile.setProfile(
                     email: data.value(forKey: UserInfoKey.email) as? String ?? "",
                     grade: data.value(forKey: UserInfoKey.grade) as? Int ?? 1,
@@ -119,5 +133,25 @@ class ProfileViewModel {
             .disposed(by: self.bag)
         
         completion()
+    }
+    
+    func choiceUser(completion: @escaping(Bool) -> Void) {
+        
+        var result = true
+        
+        self.userPickerRow
+            .subscribe(onNext: {
+                
+                if self.appDelegate?.userNameList.count == $0 {
+                    result = false
+                } else {
+                    UserDefaults.standard.setValue(self.appDelegate?.userNameList[$0], forKey: UserInfoKey.currentUser)
+                    UserDefaults.standard.synchronize()
+                    self.changeUser(name: UserInfoKey.name) {}
+                }
+            })
+            .disposed(by: self.bag)
+        
+        completion(result)
     }
 }

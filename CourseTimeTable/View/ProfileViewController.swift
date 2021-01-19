@@ -15,11 +15,14 @@ class ProfileViewController: UIViewController {
     // MARK: - Property
     
     var appDelegate: AppDelegate? = nil
+    
     let viewModel = ProfileViewModel()
     
     var bag = DisposeBag()
     
     let PROFILE_IMAGE_WIDTH: CGFloat = 200
+    
+    var isShowUserPickerView = false
     
     // MARK: - UI Property
     
@@ -78,8 +81,6 @@ class ProfileViewController: UIViewController {
         return view
     }()
     
-    let userPicker = UIPickerView()
-    
     let removeUserBtn: UIButton = {
         let view = UIButton(type: .system)
         view.setTitle("사용자 정보 삭제", for: .normal)
@@ -98,6 +99,48 @@ class ProfileViewController: UIViewController {
         return view
     }()
     
+    let visualEffectView: UIVisualEffectView = {
+        let blurEffect = UIBlurEffect(style: .dark)
+        let view = UIVisualEffectView(effect: blurEffect)
+        view.alpha = 0
+        view.isHidden = true
+        return view
+    }()
+    
+    let userPickerView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .white
+        view.layer.cornerRadius = 10
+        return view
+    }()
+    
+    let titleLabel: UILabel = {
+        let view = UILabel()
+        view.text = "사용자 전환"
+        view.textAlignment = .center
+        view.font = .systemFont(ofSize: 20)
+        return view
+    }()
+    
+    let userPicker = UIPickerView()
+    
+    let okBtn: UIButton = {
+        let view = UIButton(type: .system)
+        view.setTitle("OK", for: .normal)
+        view.layer.borderColor = UIColor.black.cgColor
+        view.layer.cornerRadius = 10
+        return view
+    }()
+    
+    let closeBtn: UIButton = {
+        let view = UIButton(type: .system)
+        view.setTitle("Cancel", for: .normal)
+        view.backgroundColor = .red
+        view.layer.cornerRadius = 10
+        view.setTitleColor(.white, for: .normal)
+        return view
+    }()
+    
     // MARK: - LifeCycle Function
     
     override func viewDidLoad() {
@@ -110,7 +153,7 @@ class ProfileViewController: UIViewController {
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        self.viewModel.changeUser(name:UserDefaults.standard.string(forKey: UserInfoKey.currentUser) ?? "") {
+        self.viewModel.changeUser(name:UserInfoKey.name ?? "") {
             self.bindUI()
         }
     }
@@ -126,6 +169,8 @@ class ProfileViewController: UIViewController {
         self.drawProfileImageView()
         self.drawUserInfoView()
         self.drawRemoveUserButton()
+        self.drawBlurBackgroundView()
+        self.drawUserPickerView()
     }
     
     func drawNavigationBarItem() {
@@ -167,7 +212,7 @@ class ProfileViewController: UIViewController {
             subView.height.equalTo(200)
         })
         
-        nameValue.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(self.choiceNextUser)))
+        nameValue.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(self.toggleUserPickerView(_:))))
         
         userInfoView.addSubview(self.nameLabel)
         userInfoView.addSubview(self.emailLabel)
@@ -237,6 +282,7 @@ class ProfileViewController: UIViewController {
         
         let guideBtn = UIButton(type: .system)
         guideBtn.setTitle("사용자 등록 / 사용자 선택", for: .normal)
+        guideBtn.addTarget(self, action: #selector(self.tabGuide(_:)), for: .touchUpInside)
         guideBtn.layer.borderWidth = 1
         guideBtn.layer.cornerRadius = 10
         
@@ -260,6 +306,63 @@ class ProfileViewController: UIViewController {
             subView.height.equalTo(40)
         })
     }
+    
+    func drawBlurBackgroundView() {
+        
+        self.visualEffectView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(self.toggleUserPickerView(_:))))
+        
+        self.view.addSubview(self.visualEffectView)
+        
+        self.visualEffectView.snp.makeConstraints({ subView in
+            subView.top.bottom.left.right.equalToSuperview()
+        })
+    }
+    
+    func drawUserPickerView() {
+        
+        self.visualEffectView.contentView.addSubview(self.userPickerView)
+        
+        self.userPickerView.snp.makeConstraints({ subView in
+            subView.centerX.centerY.equalTo(self.visualEffectView)
+            subView.width.equalTo(300)
+            subView.height.equalTo(300)
+        })
+        
+        self.userPicker.dataSource = self
+        self.userPicker.delegate = self
+        self.okBtn.addTarget(self, action: #selector(self.choice(_:)), for: .touchUpInside)
+        self.closeBtn.addTarget(self, action: #selector(self.toggleUserPickerView(_:)), for: .touchUpInside)
+        
+        self.userPickerView.addSubview(self.titleLabel)
+        self.userPickerView.addSubview(self.userPicker)
+        self.userPickerView.addSubview(self.okBtn)
+        self.userPickerView.addSubview(self.closeBtn)
+        
+        self.titleLabel.snp.makeConstraints({ subView in
+            subView.top.equalToSuperview().inset(10)
+            subView.left.right.equalToSuperview().inset(20)
+            subView.height.equalTo(50)
+        })
+        
+        self.userPicker.snp.makeConstraints({ subView in
+            subView.top.equalTo(self.titleLabel.snp.bottom).offset(10)
+            subView.left.right.equalToSuperview().inset(20)
+            subView.height.equalTo(150)
+        })
+        
+        self.okBtn.snp.makeConstraints({ subView in
+            subView.left.bottom.equalToSuperview().inset(20)
+            subView.right.equalTo(self.userPickerView.snp.centerX).inset(10)
+            subView.height.equalTo(50)
+        })
+        
+        self.closeBtn.snp.makeConstraints({ subView in
+            subView.right.bottom.equalToSuperview().inset(20)
+            subView.left.equalTo(self.userPickerView.snp.centerX).inset(10)
+            subView.height.equalTo(50)
+        })
+    }
+    
     
     // MARK: - Bind UI Function
     
@@ -325,6 +428,12 @@ class ProfileViewController: UIViewController {
             .map({ $0 == "" })
             .bind(to: self.removeUserBtn.rx.isHidden)
             .disposed(by: self.bag)
+        
+        self.userPicker.rx.itemSelected
+            .subscribe(onNext: { row, _ in
+                self.viewModel.userPickerRow.onNext(row)
+            })
+            .disposed(by: self.bag)
     }
     
     // MARK: - #Selector Function
@@ -367,15 +476,46 @@ class ProfileViewController: UIViewController {
         self.present(alert, animated: true)
     }
     
-    @objc func choiceNextUser(_ sender: UIButton) {
-        print(1)
+    @objc func tabGuide(_ sender: UIButton) {
+        
+        if self.appDelegate?.userNameList.count == 0 {
+            self.showCreateUserView(self)
+        } else {
+            self.toggleUserPickerView(self)
+        }
     }
     
     @objc func clickedRemoveUserButton(_ sender: UIButton) {
         self.viewModel.deleteUser() {
+            self.drawUI()
             self.bindUI()
         }
     }
+    
+    @objc func choice(_ sender: Any) {
+        
+        self.viewModel.choiceUser() { result in
+            
+            if result {
+                self.toggleUserPickerView(self)
+                self.bindUI()
+            } else {
+                self.toggleUserPickerView(self)
+                self.showCreateUserView(self)
+            }
+        }
+    }
+    
+    @objc func toggleUserPickerView(_ sender: Any) {
+        
+        UIView.animate(withDuration: 0.5) {
+            self.visualEffectView.isHidden = self.isShowUserPickerView
+            self.visualEffectView.alpha = self.isShowUserPickerView ? 0 : 0.8
+        }
+        
+        self.isShowUserPickerView.toggle()
+    }
+    
 }
 
 // MARK: - Extension
@@ -412,23 +552,22 @@ extension ProfileViewController : UIPickerViewDelegate, UIPickerViewDataSource {
     
     func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
         
-        let count = appDelegate?.userNameList.count
-        
-        if count == 0 {
+        guard let count = appDelegate?.userNameList.count else {
             return 1
-        } else {
-            return appDelegate?.userNameList.count ?? 1
         }
+        return count + 1
     }
     
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
         
-        let count = appDelegate?.userNameList.count
-        
-        if count == 0 {
+        guard let count = appDelegate?.userNameList.count else {
             return "사용자 추가"
-        } else {
-            return appDelegate?.userNameList[row]
         }
+        
+        if row == count {
+            return "사용자 추가"
+        }
+        
+        return appDelegate?.userNameList[row]
     }
 }

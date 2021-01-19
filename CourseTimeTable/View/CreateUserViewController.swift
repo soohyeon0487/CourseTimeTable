@@ -15,7 +15,7 @@ class CreateUserViewController: UIViewController {
     
     let viewModel = CreateUserViewModel()
     
-    var disposedBag = DisposeBag()
+    var bag = DisposeBag()
     
     let gradeList = [1, 2, 3, 4]
     let semesterList = ["봄", "여름", "가을", "겨울"]
@@ -128,7 +128,7 @@ class CreateUserViewController: UIViewController {
     }
     
     override func viewWillDisappear(_ animated: Bool) {
-        self.disposedBag = DisposeBag()
+        self.bag = DisposeBag()
     }
     
     // MARK: - Draw UI Function
@@ -234,62 +234,62 @@ class CreateUserViewController: UIViewController {
         
         self.nameInput.rx.text.orEmpty
             .bind(to: self.viewModel.nameText)
-            .disposed(by: self.disposedBag)
+            .disposed(by: self.bag)
         
         self.emailInput.rx.text.orEmpty
             .bind(to: self.viewModel.emailText)
-            .disposed(by: self.disposedBag)
+            .disposed(by: self.bag)
         
         self.gradePicker.rx.itemSelected
             .subscribe(onNext: { row, _ in
                 self.viewModel.gradeValue.onNext(self.gradeList[row])
             })
-            .disposed(by: self.disposedBag)
+            .disposed(by: self.bag)
         
         self.semesterPicker.rx.itemSelected
             .subscribe(onNext: { row, _ in
                 self.viewModel.semesterValue.onNext(row)
             })
-            .disposed(by: self.disposedBag)
+            .disposed(by: self.bag)
         
         self.viewModel.isNameValid
             .map({ !$0 })
             .bind(to: self.emailLabel.rx.isHidden)
-            .disposed(by: self.disposedBag)
+            .disposed(by: self.bag)
         
         self.viewModel.isNameValid
             .map({ !$0 })
             .bind(to: self.emailInput.rx.isHidden)
-            .disposed(by: self.disposedBag)
+            .disposed(by: self.bag)
         
         self.viewModel.isEmailValid
             .map({ !$0 })
             .bind(to: self.registerLabel.rx.isHidden)
-            .disposed(by: self.disposedBag)
+            .disposed(by: self.bag)
         
         self.viewModel.isEmailValid
             .map({ !$0 })
             .bind(to: self.gradeLabel.rx.isHidden)
-            .disposed(by: self.disposedBag)
+            .disposed(by: self.bag)
         
         self.viewModel.isEmailValid
             .map({ !$0 })
             .bind(to: self.semesterLabel.rx.isHidden)
-            .disposed(by: self.disposedBag)
+            .disposed(by: self.bag)
         
         self.viewModel.isEmailValid
             .map({ !$0 })
             .bind(to: self.gradePicker.rx.isHidden)
-            .disposed(by: self.disposedBag)
+            .disposed(by: self.bag)
         
         self.viewModel.isEmailValid
             .map({ !$0 })
             .bind(to: self.semesterPicker.rx.isHidden)
-            .disposed(by: self.disposedBag)
+            .disposed(by: self.bag)
         
         self.viewModel.isValid
             .bind(to: self.saveBtn.rx.isEnabled)
-            .disposed(by: self.disposedBag)
+            .disposed(by: self.bag)
     }
     
     // MARK: - #Selector Function
