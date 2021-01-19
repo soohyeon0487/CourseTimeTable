@@ -5,6 +5,7 @@
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
+        <capability name="collection view cell content view" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -22,7 +23,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1044.9275362318842" y="138.58695652173915"/>
+            <point key="canvasLocation" x="138" y="929"/>
         </scene>
         <!--Profile View Controller-->
         <scene sceneID="7Sn-Cz-Ly1">
@@ -38,6 +39,41 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="MqH-SR-4rc" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="1913" y="139"/>
+        </scene>
+        <!--Web Cat View Controller-->
+        <scene sceneID="z7N-uc-324">
+            <objects>
+                <collectionViewController id="haE-Ip-736" customClass="WebCatViewController" customModule="CourseTimeTable" customModuleProvider="target" sceneMemberID="viewController">
+                    <collectionView key="view" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" id="VBI-hc-0Dd">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <collectionViewFlowLayout key="collectionViewLayout" automaticEstimatedItemSize="YES" minimumLineSpacing="10" minimumInteritemSpacing="10" id="cEi-gN-gfq">
+                            <size key="itemSize" width="128" height="128"/>
+                            <size key="headerReferenceSize" width="0.0" height="0.0"/>
+                            <size key="footerReferenceSize" width="0.0" height="0.0"/>
+                            <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
+                        </collectionViewFlowLayout>
+                        <cells>
+                            <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" id="6YC-Ip-Vr2">
+                                <rect key="frame" x="0.0" y="0.0" width="128" height="128"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="wMs-nI-KA1">
+                                    <rect key="frame" x="0.0" y="0.0" width="128" height="128"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                </collectionViewCellContentView>
+                            </collectionViewCell>
+                        </cells>
+                        <connections>
+                            <outlet property="dataSource" destination="haE-Ip-736" id="eSY-Pd-WKE"/>
+                            <outlet property="delegate" destination="haE-Ip-736" id="eX2-cy-1OP"/>
+                        </connections>
+                    </collectionView>
+                    <navigationItem key="navigationItem" id="Lbm-IQ-D4w"/>
+                </collectionViewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="DtX-gf-gHM" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1026" y="139"/>
         </scene>
         <!--Add Course View Controller-->
         <scene sceneID="IWo-xd-Mzf">
@@ -61,7 +97,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="are-Rt-EBh" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1912" y="890"/>
+            <point key="canvasLocation" x="1025" y="929"/>
         </scene>
         <!--Create User View Controller-->
         <scene sceneID="Km1-aX-Ynq">
@@ -90,7 +126,7 @@
                     </navigationBar>
                     <nil name="viewControllers"/>
                     <connections>
-                        <segue destination="BYZ-38-t0r" kind="relationship" relationship="rootViewController" id="Woy-T4-kYM"/>
+                        <segue destination="haE-Ip-736" kind="relationship" relationship="rootViewController" id="jBq-d4-vwj"/>
                     </connections>
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="trj-tM-VXg" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>

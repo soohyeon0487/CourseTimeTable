@@ -26,6 +26,7 @@ class CreateUserViewController: UIViewController {
         let view = UIBarButtonItem()
         view.title = "닫기"
         view.style = .plain
+        view.tintColor = .black
         return view
     }()
     
@@ -154,40 +155,62 @@ class CreateUserViewController: UIViewController {
     
     func drawInputView() {
         
+        let toolbar = UIToolbar()
+        toolbar.sizeToFit()
+                
+        let doneButton = UIBarButtonItem(barButtonSystemItem: .done, target: nil, action: #selector(self.done(_:)))
+        let flexBotton = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+        toolbar.setItems([flexBotton, doneButton], animated: false)
+                
+        nameInput.inputAccessoryView = toolbar
+        emailInput.inputAccessoryView = toolbar
+        
         self.gradePicker.dataSource = self
         self.gradePicker.delegate = self
         self.semesterPicker.dataSource = self
         self.semesterPicker.delegate = self
         
-        self.view.addSubview(nameLabel)
-        self.view.addSubview(emailLabel)
-        self.view.addSubview(registerLabel)
-        self.view.addSubview(gradeLabel)
-        self.view.addSubview(semesterLabel)
+        let inputView = UIView()
         
-        self.view.addSubview(nameInput)
-        self.view.addSubview(emailInput)
-        self.view.addSubview(gradePicker)
-        self.view.addSubview(semesterPicker)
+        self.view.addSubview(inputView)
+        
+        let height: CGFloat = view.frame.height/10
+        
+        inputView.snp.makeConstraints( { subView in
+            subView.left.right.equalToSuperview().inset(30)
+            subView.top.equalToSuperview().inset(height*1.5)
+            subView.bottom.equalToSuperview().inset(height*2)
+        })
+        
+        inputView.addSubview(nameLabel)
+        inputView.addSubview(emailLabel)
+        inputView.addSubview(registerLabel)
+        inputView.addSubview(gradeLabel)
+        inputView.addSubview(semesterLabel)
+        
+        inputView.addSubview(nameInput)
+        inputView.addSubview(emailInput)
+        inputView.addSubview(gradePicker)
+        inputView.addSubview(semesterPicker)
         
         nameLabel.snp.makeConstraints( { subView in
             subView.width.equalTo(100)
             subView.height.equalTo(30)
-            subView.top.equalToSuperview().offset(80)
-            subView.left.equalToSuperview().offset(40)
+            subView.top.equalToSuperview()
+            subView.left.equalToSuperview()
         })
         
         emailLabel.snp.makeConstraints( { subView in
             subView.width.equalTo(100)
             subView.height.equalTo(30)
             subView.top.equalTo(nameLabel.snp.bottom).offset(30)
-            subView.left.equalToSuperview().offset(40)
+            subView.left.equalToSuperview()
         })
         
         registerLabel.snp.makeConstraints( { subView in
             subView.height.equalTo(30)
-            subView.top.equalTo(emailLabel.snp.bottom).offset(50)
-            subView.centerX.left.right.equalToSuperview().inset(40)
+            subView.top.equalTo(emailLabel.snp.bottom).offset(40)
+            subView.centerX.left.right.equalToSuperview()
         })
         
         gradeLabel.snp.makeConstraints( { subView in
@@ -206,14 +229,14 @@ class CreateUserViewController: UIViewController {
         
         nameInput.snp.makeConstraints( { subView in
             subView.left.equalTo(nameLabel.snp.right).offset(10)
-            subView.right.equalToSuperview().offset(-30)
-            subView.centerY.bottom.equalTo(nameLabel)
+            subView.right.equalToSuperview()
+            subView.top.bottom.equalTo(nameLabel)
         })
         
         emailInput.snp.makeConstraints( { subView in
             subView.left.equalTo(emailLabel.snp.right).offset(10)
             subView.right.equalToSuperview().offset(-30)
-            subView.centerY.bottom.equalTo(emailLabel)
+            subView.top.bottom.equalTo(emailLabel)
         })
         
         gradePicker.snp.makeConstraints( { subView in
@@ -314,6 +337,10 @@ class CreateUserViewController: UIViewController {
             self.present(alert, animated: true)
         }
     }
+        
+        @objc func done(_ sender: Any) {
+            self.view.endEditing(true)
+        }
 }
 
 // MARK: - Extension

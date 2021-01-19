@@ -153,7 +153,7 @@ class ProfileViewController: UIViewController {
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        self.viewModel.changeUser(name:UserInfoKey.name ?? "") {
+        self.viewModel.changeUser(name:UserInfoKey.currentUser ?? "") {
             self.bindUI()
         }
     }
@@ -165,7 +165,7 @@ class ProfileViewController: UIViewController {
     // MARK: - Draw UI Function
     
     func drawUI() {
-        self.drawNavigationBarItem()
+        self.drawNavigationBar()
         self.drawProfileImageView()
         self.drawUserInfoView()
         self.drawRemoveUserButton()
@@ -173,9 +173,11 @@ class ProfileViewController: UIViewController {
         self.drawUserPickerView()
     }
     
-    func drawNavigationBarItem() {
+    func drawNavigationBar() {
         
         self.navigationItem.title = "사용자 정보"
+        
+        
         
         let createBtn = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(self.showCreateUserView(_:)))
         

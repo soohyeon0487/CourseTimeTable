@@ -33,10 +33,12 @@ class ProfileViewModel {
         
         var input = name
         
+        if input == UserInfoKey.currentUser {
+            input = UserDefaults.standard.string(forKey: UserInfoKey.currentUser) ?? ""
+        }
+        
         if input == "" {
             return
-        } else if input == UserInfoKey.name {
-            input = UserDefaults.standard.string(forKey: UserInfoKey.currentUser)!
         }
         
         let customPlist = "\(input).plist"

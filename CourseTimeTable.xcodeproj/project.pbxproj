@@ -14,6 +14,12 @@
 		916DD19E25B1721F0087D96D /* ProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 916DD19D25B1721F0087D96D /* ProfileViewModel.swift */; };
 		916DD1A225B176510087D96D /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 916DD1A125B176510087D96D /* ProfileViewController.swift */; };
 		916DD1AB25B1BC000087D96D /* CreateUserViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 916DD1AA25B1BC000087D96D /* CreateUserViewController.swift */; };
+		919F5CDE25B6AEE600F3180F /* Service.swift in Sources */ = {isa = PBXBuildFile; fileRef = 919F5CDD25B6AEE600F3180F /* Service.swift */; };
+		919F5CE125B6B15D00F3180F /* WebCat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 919F5CE025B6B15D00F3180F /* WebCat.swift */; };
+		919F5CE825B6B1AF00F3180F /* WebCatCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 919F5CE725B6B1AF00F3180F /* WebCatCell.swift */; };
+		919F5CEC25B6D2A400F3180F /* WebCatViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 919F5CEB25B6D2A400F3180F /* WebCatViewController.swift */; };
+		919F5CEF25B6D31000F3180F /* WebCatViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 919F5CEE25B6D31000F3180F /* WebCatViewModel.swift */; };
+		919F5CF325B6FCCD00F3180F /* WebCatDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 919F5CF225B6FCCD00F3180F /* WebCatDetailViewController.swift */; };
 		91E6634025B167AA002F6C47 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91E6633F25B167AA002F6C47 /* AppDelegate.swift */; };
 		91E6634225B167AA002F6C47 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91E6634125B167AA002F6C47 /* SceneDelegate.swift */; };
 		91E6634425B167AA002F6C47 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91E6634325B167AA002F6C47 /* ViewController.swift */; };
@@ -30,6 +36,12 @@
 		916DD19D25B1721F0087D96D /* ProfileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewModel.swift; sourceTree = "<group>"; };
 		916DD1A125B176510087D96D /* ProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
 		916DD1AA25B1BC000087D96D /* CreateUserViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateUserViewController.swift; sourceTree = "<group>"; };
+		919F5CDD25B6AEE600F3180F /* Service.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Service.swift; sourceTree = "<group>"; };
+		919F5CE025B6B15D00F3180F /* WebCat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WebCat.swift; path = "/Users/soohyeonlee/Desktop/Xcode 실습/CourseTimeTable/CourseTimeTable/Model/WebCat.swift"; sourceTree = "<absolute>"; };
+		919F5CE725B6B1AF00F3180F /* WebCatCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebCatCell.swift; sourceTree = "<group>"; };
+		919F5CEB25B6D2A400F3180F /* WebCatViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebCatViewController.swift; sourceTree = "<group>"; };
+		919F5CEE25B6D31000F3180F /* WebCatViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebCatViewModel.swift; sourceTree = "<group>"; };
+		919F5CF225B6FCCD00F3180F /* WebCatDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebCatDetailViewController.swift; sourceTree = "<group>"; };
 		91E6633C25B167AA002F6C47 /* CourseTimeTable.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CourseTimeTable.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		91E6633F25B167AA002F6C47 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		91E6634125B167AA002F6C47 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -65,6 +77,7 @@
 		912A7FD825B4BFF80031D7A4 /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				919F5CE025B6B15D00F3180F /* WebCat.swift */,
 				912A7FE125B4C0650031D7A4 /* ProfileInfo.swift */,
 			);
 			path = Model;
@@ -73,6 +86,7 @@
 		912A7FD925B4C0060031D7A4 /* ViewModel */ = {
 			isa = PBXGroup;
 			children = (
+				919F5CEE25B6D31000F3180F /* WebCatViewModel.swift */,
 				915FF02C25B29E8B00A20A3A /* CreateUserViewModel.swift */,
 				916DD19D25B1721F0087D96D /* ProfileViewModel.swift */,
 			);
@@ -84,9 +98,19 @@
 			children = (
 				916DD1AA25B1BC000087D96D /* CreateUserViewController.swift */,
 				916DD1A125B176510087D96D /* ProfileViewController.swift */,
-				91E6634525B167AA002F6C47 /* Main.storyboard */,
+				919F5CE725B6B1AF00F3180F /* WebCatCell.swift */,
+				919F5CEB25B6D2A400F3180F /* WebCatViewController.swift */,
+				919F5CF225B6FCCD00F3180F /* WebCatDetailViewController.swift */,
 			);
 			path = View;
+			sourceTree = "<group>";
+		};
+		919F5CDA25B6AA4E00F3180F /* Util */ = {
+			isa = PBXGroup;
+			children = (
+				919F5CDD25B6AEE600F3180F /* Service.swift */,
+			);
+			path = Util;
 			sourceTree = "<group>";
 		};
 		91E6633325B167AA002F6C47 = {
@@ -110,16 +134,18 @@
 		91E6633E25B167AA002F6C47 /* CourseTimeTable */ = {
 			isa = PBXGroup;
 			children = (
+				91E6634D25B167AB002F6C47 /* Info.plist */,
+				91E6633F25B167AA002F6C47 /* AppDelegate.swift */,
+				91E6634125B167AA002F6C47 /* SceneDelegate.swift */,
+				91E6634525B167AA002F6C47 /* Main.storyboard */,
+				91E6634A25B167AB002F6C47 /* LaunchScreen.storyboard */,
+				91E6634825B167AB002F6C47 /* Assets.xcassets */,
 				912A7FD825B4BFF80031D7A4 /* Model */,
 				912A7FDA25B4C00D0031D7A4 /* View */,
 				912A7FD925B4C0060031D7A4 /* ViewModel */,
-				91E6633F25B167AA002F6C47 /* AppDelegate.swift */,
-				91E6634125B167AA002F6C47 /* SceneDelegate.swift */,
-				91E6634325B167AA002F6C47 /* ViewController.swift */,
+				919F5CDA25B6AA4E00F3180F /* Util */,
 				916DD19A25B1705E0087D96D /* AddCourseViewController.swift */,
-				91E6634825B167AB002F6C47 /* Assets.xcassets */,
-				91E6634A25B167AB002F6C47 /* LaunchScreen.storyboard */,
-				91E6634D25B167AB002F6C47 /* Info.plist */,
+				91E6634325B167AA002F6C47 /* ViewController.swift */,
 			);
 			path = CourseTimeTable;
 			sourceTree = "<group>";
@@ -247,13 +273,19 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				919F5CEC25B6D2A400F3180F /* WebCatViewController.swift in Sources */,
 				916DD1A225B176510087D96D /* ProfileViewController.swift in Sources */,
 				916DD19E25B1721F0087D96D /* ProfileViewModel.swift in Sources */,
+				919F5CF325B6FCCD00F3180F /* WebCatDetailViewController.swift in Sources */,
 				91E6634425B167AA002F6C47 /* ViewController.swift in Sources */,
 				912A7FE225B4C0650031D7A4 /* ProfileInfo.swift in Sources */,
 				915FF02D25B29E8B00A20A3A /* CreateUserViewModel.swift in Sources */,
+				919F5CE825B6B1AF00F3180F /* WebCatCell.swift in Sources */,
 				916DD1AB25B1BC000087D96D /* CreateUserViewController.swift in Sources */,
 				916DD19B25B1705E0087D96D /* AddCourseViewController.swift in Sources */,
+				919F5CE125B6B15D00F3180F /* WebCat.swift in Sources */,
+				919F5CEF25B6D31000F3180F /* WebCatViewModel.swift in Sources */,
+				919F5CDE25B6AEE600F3180F /* Service.swift in Sources */,
 				91E6634025B167AA002F6C47 /* AppDelegate.swift in Sources */,
 				91E6634225B167AA002F6C47 /* SceneDelegate.swift in Sources */,
 			);
