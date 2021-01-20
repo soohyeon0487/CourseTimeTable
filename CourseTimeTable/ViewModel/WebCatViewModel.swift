@@ -8,7 +8,6 @@
 import Foundation
 import UIKit
 import RxSwift
-import RxRelay
 import RxCocoa
 
 class WebCatViewModel {
@@ -17,33 +16,52 @@ class WebCatViewModel {
     
     var bag = DisposeBag()
     
-    let webCatItems = BehaviorRelay(value: [WebCat]())
-    let filteredWebCatItems = BehaviorRelay(value: [WebCat]())
+    var webCatItems = [
+        WebCat(title: "Test1", width: 100, height: 150),
+        WebCat(title: "Test2", width: 250, height: 200),
+        WebCat(title: "Test3", width: 300, height: 300)
+    ]
+    let filteredWebCatItems = BehaviorSubject(value: [WebCat]())
     
     // MARK: - Init
     
     
     // MARK: - Logic
     
-    func resetFilter() {
-        self.filteredWebCatItems.accept(self.webCatItems.value)
+    
+    private func loadImage(item: WebCat) -> WebCat {
+        Service.shared.requestWebCatImage(url: item.imageUrl) {
+            item.image = $0
+        }
+        return item
     }
     
-    func loadData() {
+    func resetFilter() {
         
-        let items = [WebCat]()
+        self.filteredWebCatItems
+            .onNext(self.webCatItems)
+    }
+    
+    func loadDataByName(name: String) {
         
-        // SQL -> webCatItems 입력
+        // SQL(name) -> items 입력
+        // items -> Image load
+        // itemsWithImage -> WebCatItems
         
-        // WebCatItems -> Image load
-//        self.webCatItems
-//            .subscribe(onNext: { items in
-//                items.map { item in
-//                    Service.shared.requestWebCatImage(url: item.imageUrl) { image in
-//                        item.image = image
-//                    }
-//                }
-//            })
-//            .disposed(by: self.bag)
+        print(self.webCatItems)
+        
+        Observable.just(self.webCatItems)
+            .subscribe(onNext: { items in
+                
+                items.map {
+                    if $0.image == nil {
+                        self.loadImage(item: $0)
+                    }
+                }
+                
+                self.filteredWebCatItems.onNext(items)
+            })
+            .disposed(by: self.bag)
+        
     }
 }

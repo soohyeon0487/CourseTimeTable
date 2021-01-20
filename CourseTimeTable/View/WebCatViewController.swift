@@ -29,6 +29,8 @@ class WebCatViewController: UICollectionViewController {
     
     var isSearchMode = false
     
+    var currentUserName = ""
+    
     // MARK: - UI Property
     
     let searchBtn: UIBarButtonItem = {
@@ -51,22 +53,22 @@ class WebCatViewController: UICollectionViewController {
         
         self.collectionView.dataSource = nil
         
+        self.loadUserData()
         self.loadData()
         
         self.drawUI()
-        
         self.bindUI()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         self.navigationItem.title = UserDefaults.standard.string(forKey: UserInfoKey.currentUser) ?? "Guest"
+        
         self.isSearchMode = false
-        self.collectionView.reloadData()
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         self.navigationItem.title = ""
-        self.bag = DisposeBag()
+        //self.bag = DisposeBag()
     }
     
     // MARK: - Draw UI Function
@@ -119,8 +121,13 @@ class WebCatViewController: UICollectionViewController {
         
         self.viewModel.filteredWebCatItems
             .bind(to: self.collectionView.rx.items(cellIdentifier: reuseIdentifier, cellType: WebCatCell.self)) { index, element, cell in
+                
+                // Value
                 cell.titleLabel.text = element.title
                 cell.imageView.image = element.image
+                
+                // UI
+                cell.layer.borderWidth = 1
             }
             .disposed(by: bag)
         
@@ -151,13 +158,33 @@ class WebCatViewController: UICollectionViewController {
     
     // MARK: - Load Data
     
-    func loadData() {
+    func loadUserData() {
         
-        guard let currentUser = UserDefaults.standard.string(forKey: UserInfoKey.currentUser) else {
+        self.currentUserName = UserDefaults.standard.string(forKey: UserInfoKey.currentUser) ?? ""
+        
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
             return
         }
         
-        self.viewModel.loadData()
+        let userDefault = UserDefaults.standard
+        let savedUserList = userDefault.stringArray(forKey: UserInfoKey.userList)
+        
+        if savedUserList?.count == 0 {
+            return
+        }
+        
+        savedUserList.map {
+            appDelegate.userNameList.append(contentsOf: $0)
+        }
+    }
+    
+    func loadData() {
+        
+        if self.currentUserName == "" {
+            return
+        }
+        
+        self.viewModel.loadDataByName(name: currentUserName)
     }
     
 }
@@ -183,6 +210,7 @@ extension WebCatViewController: UISearchBarDelegate {
     
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
         self.drawSearchBar(shouldShow: false)
+        self.viewModel.resetFilter()
     }
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {

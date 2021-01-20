@@ -29,12 +29,23 @@ class ProfileViewModel {
     
     // MARK: - Logic
     
-    func changeUser(name: String = "", completion: @escaping() -> Void) {
+    func changeUser(name: String) {
+        
+        let currentUserName = UserDefaults.standard.string(forKey: UserInfoKey.currentUser)
         
         var input = name
         
+        // 사용자 변화 체크
+        self.profile
+            .subscribe(onNext: {
+                if $0.name == currentUserName {
+                    return
+                }
+            })
+            .disposed(by: self.bag)
+        
         if input == UserInfoKey.currentUser {
-            input = UserDefaults.standard.string(forKey: UserInfoKey.currentUser) ?? ""
+            input = currentUserName ?? ""
         }
         
         if input == "" {
@@ -49,25 +60,26 @@ class ProfileViewModel {
         let filePath = path.strings(byAppendingPaths: [customPlist]).first!
         let data = NSMutableDictionary(contentsOfFile: filePath) ?? NSMutableDictionary()
         
-        self.profile
+        Observable.just(input)
             .subscribe(on: MainScheduler.instance)
-            .subscribe(onNext: { profile in
+            .subscribe(onNext: { newName in
                 
-                profile.setName(name: input)
-                profile.setProfile(
+                let newProfile = Profile(name: newName)
+                
+                newProfile.setProfile(
                     email: data.value(forKey: UserInfoKey.email) as? String ?? "",
                     grade: data.value(forKey: UserInfoKey.grade) as? Int ?? 1,
                     semester: data.value(forKey: UserInfoKey.semester) as? Int ?? 1
                 )
                 if let profileImageData = data.value(forKey: UserInfoKey.profileImage) as? Data {
-                    profile.setImage(image: UIImage(data: profileImageData))
+                    newProfile.setImage(image: UIImage(data: profileImageData))
                 } else {
-                    profile.setImage(image: nil)
+                    newProfile.setImage(image: nil)
                 }
+                
+                self.profile.onNext(newProfile)
             })
             .disposed(by: self.bag)
-        
-        completion()
     }
     
     func deleteUser(completion: @escaping() -> Void) {
@@ -143,13 +155,12 @@ class ProfileViewModel {
         
         self.userPickerRow
             .subscribe(onNext: {
-                
                 if self.appDelegate?.userNameList.count == $0 {
                     result = false
                 } else {
                     UserDefaults.standard.setValue(self.appDelegate?.userNameList[$0], forKey: UserInfoKey.currentUser)
                     UserDefaults.standard.synchronize()
-                    self.changeUser(name: UserInfoKey.name) {}
+                    self.changeUser(name: UserInfoKey.currentUser)
                 }
             })
             .disposed(by: self.bag)

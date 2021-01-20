@@ -17,19 +17,14 @@ class WebCatCell: UICollectionViewCell {
     
     let imageView: UIImageView = {
         let view = UIImageView()
-        view.contentMode = .scaleAspectFit
-        return view
-    }()
-    
-    let titleContainerview: UIView = {
-        let view = UIView()
-        
+        view.contentMode = .scaleAspectFill
         return view
     }()
     
     let titleLabel: UILabel = {
         let view = UILabel()
         view.textAlignment = .center
+        view.backgroundColor = .init(white: 1, alpha: 0.5)
         return view
     }()
     
@@ -56,21 +51,16 @@ class WebCatCell: UICollectionViewCell {
     func drawUI() {
         
         self.addSubview(self.imageView)
-        self.addSubview(self.titleContainerview)
-        self.titleContainerview.addSubview(self.titleLabel)
+        self.addSubview(self.titleLabel)
         
         self.imageView.snp.makeConstraints({ subView in
-            subView.top.left.right.equalToSuperview()
-            subView.height.equalTo(self.snp.width)
-        })
-        
-        self.titleContainerview.snp.makeConstraints({ subView in
-            subView.bottom.left.right.equalToSuperview()
-            subView.top.equalTo(self.imageView.snp.top)
+            subView.centerX.centerY.equalToSuperview()
+            subView.width.height.equalTo(self.frame.height)
         })
         
         self.titleLabel.snp.makeConstraints({ subView in
-            subView.center.width.height.equalToSuperview()
+            subView.height.equalTo(30)
+            subView.centerX.bottom.width.equalTo(self.imageView)
         })
     }
     

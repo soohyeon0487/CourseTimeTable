@@ -153,13 +153,12 @@ class ProfileViewController: UIViewController {
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        self.viewModel.changeUser(name:UserInfoKey.currentUser ?? "") {
-            self.bindUI()
-        }
+        self.userPicker.reloadAllComponents()
+        self.viewModel.changeUser(name:UserInfoKey.currentUser)
     }
     
     override func viewWillDisappear(_ animated: Bool) {
-        self.bag = DisposeBag()
+        //self.bag = DisposeBag()
     }
     
     // MARK: - Draw UI Function
@@ -489,8 +488,8 @@ class ProfileViewController: UIViewController {
     
     @objc func clickedRemoveUserButton(_ sender: UIButton) {
         self.viewModel.deleteUser() {
-            self.drawUI()
-            self.bindUI()
+            //self.drawUI()
+            //self.bindUI()
         }
     }
     
@@ -500,7 +499,7 @@ class ProfileViewController: UIViewController {
             
             if result {
                 self.toggleUserPickerView(self)
-                self.bindUI()
+                //self.bindUI()
             } else {
                 self.toggleUserPickerView(self)
                 self.showCreateUserView(self)
@@ -538,7 +537,7 @@ extension ProfileViewController : UIImagePickerControllerDelegate, UINavigationC
         
         if let img = info[UIImagePickerController.InfoKey.editedImage] as? UIImage {
             self.viewModel.changeProfileImage(image: img) {
-                self.bindUI()
+                //self.bindUI()
             }
         }
         
