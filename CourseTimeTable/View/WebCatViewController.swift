@@ -51,24 +51,20 @@ class WebCatViewController: UICollectionViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        self.collectionView.dataSource = nil
-        
-        self.loadUserData()
         self.loadData()
         
         self.drawUI()
         self.bindUI()
+        self.bindUIForCollectionView()
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        self.navigationItem.title = UserDefaults.standard.string(forKey: UserInfoKey.currentUser) ?? "Guest"
-        
         self.isSearchMode = false
+        self.viewModel.loadWebCatDataByName()
     }
     
     override func viewWillDisappear(_ animated: Bool) {
-        self.navigationItem.title = ""
-        //self.bag = DisposeBag()
+        //self.navigationItem.title = ""
     }
     
     // MARK: - Draw UI Function
@@ -118,27 +114,10 @@ class WebCatViewController: UICollectionViewController {
     // MARK: - Bind UI Function
     
     func bindUI() {
-        
-        self.viewModel.filteredWebCatItems
-            .bind(to: self.collectionView.rx.items(cellIdentifier: reuseIdentifier, cellType: WebCatCell.self)) { index, element, cell in
-                
-                // Value
-                cell.titleLabel.text = element.title
-                cell.imageView.image = element.image
-                
-                // UI
-                cell.layer.borderWidth = 1
-            }
+        currentUserNameTest
+            .bind(to: self.navigationItem.rx.title)
             .disposed(by: bag)
         
-        self.collectionView.rx.modelSelected(WebCat.self)
-            .subscribe(onNext: { webCat in
-                let webCatDetailView = WebCatDetailViewController()
-                webCatDetailView.webCat = webCat
-                
-                self.navigationController?.pushViewController(webCatDetailView, animated: true)
-            })
-            .disposed(by: self.bag)
     }
     
     // MARK: - #Selector Function
@@ -158,35 +137,37 @@ class WebCatViewController: UICollectionViewController {
     
     // MARK: - Load Data
     
-    func loadUserData() {
-        
-        self.currentUserName = UserDefaults.standard.string(forKey: UserInfoKey.currentUser) ?? ""
-        
-        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
-            return
-        }
-        
-        let userDefault = UserDefaults.standard
-        let savedUserList = userDefault.stringArray(forKey: UserInfoKey.userList)
-        
-        if savedUserList?.count == 0 {
-            return
-        }
-        
-        savedUserList.map {
-            appDelegate.userNameList.append(contentsOf: $0)
-        }
-    }
-    
     func loadData() {
-        
-        if self.currentUserName == "" {
-            return
-        }
-        
-        self.viewModel.loadDataByName(name: currentUserName)
+        self.viewModel.loadUserData()
     }
     
+}
+
+// MARK: - Extension
+
+extension WebCatViewController {
+    
+    func bindUIForCollectionView() {
+        
+        self.collectionView.dataSource = nil
+        
+        _ = self.viewModel.filteredWebCatItems
+            .bind(to: self.collectionView.rx.items(cellIdentifier: reuseIdentifier, cellType: WebCatCell.self)) { index, element, cell in
+                
+                cell.titleLabel.text = element.title
+                cell.imageView.image = element.image
+                
+                cell.layer.borderWidth = 1
+            }
+        
+        _ = self.collectionView.rx.modelSelected(WebCat.self)
+            .subscribe(onNext: { webCat in
+                let webCatDetailView = WebCatDetailViewController()
+                webCatDetailView.webCat = webCat
+                
+                self.navigationController?.pushViewController(webCatDetailView, animated: true)
+            })
+    }
 }
 
 extension WebCatViewController: UICollectionViewDelegateFlowLayout {
@@ -209,8 +190,11 @@ extension WebCatViewController: UICollectionViewDelegateFlowLayout {
 extension WebCatViewController: UISearchBarDelegate {
     
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+        
         self.drawSearchBar(shouldShow: false)
-        self.viewModel.resetFilter()
+        
+        self.viewModel.loadWebCatDataByName()
+        
     }
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
@@ -220,11 +204,9 @@ extension WebCatViewController: UISearchBarDelegate {
         if searchText == "" || searchBar.text == nil {
             
             self.isSearchMode = false
-            
-            self.viewModel.resetFilter()
-            
             self.view.endEditing(true)
             
+            self.viewModel.loadWebCatDataByName()
             
         } else {
             
@@ -232,10 +214,6 @@ extension WebCatViewController: UISearchBarDelegate {
             
             print("items filterring")
             
-            
-            //            self.isSearchMode = true
-            //            self.filteredWebCatItems = webCatItems.filter({ $0.title.range(of: searchText) != nil })
-            //            collectionView.reloadData()
         }
     }
 }

@@ -21,13 +21,23 @@ class WebCatViewModel {
         WebCat(title: "Test2", width: 250, height: 200),
         WebCat(title: "Test3", width: 300, height: 300)
     ]
-    let filteredWebCatItems = BehaviorSubject(value: [WebCat]())
+    
+    let filteredWebCatItems = BehaviorRelay(value: [WebCat]())
+    
+    let isEmptyCurrentUser = BehaviorRelay(value: false)
+    
+    var lastUserName = ""
     
     // MARK: - Init
     
+    init() {
+        currentUserNameTest
+            .map({ $0 == "" })
+            .bind(to: self.isEmptyCurrentUser)
+            .disposed(by: self.bag)
+    }
     
     // MARK: - Logic
-    
     
     private func loadImage(item: WebCat) -> WebCat {
         Service.shared.requestWebCatImage(url: item.imageUrl) {
@@ -36,19 +46,41 @@ class WebCatViewModel {
         return item
     }
     
-    func resetFilter() {
-        
+    func reLoadItems() {
         self.filteredWebCatItems
-            .onNext(self.webCatItems)
+            .accept(self.webCatItems)
     }
     
-    func loadDataByName(name: String) {
-        
+    func loadUserData() {
+        currentUserNameTest.accept(UserDefaults.standard.string(forKey: UserInfoKey.currentUser) ?? "")
+        userNameListTest.accept(UserDefaults.standard.stringArray(forKey: UserInfoKey.userList) ?? [String]())
+    }
+    
+    func loadWebCatDataByName() {
         // SQL(name) -> items 입력
         // items -> Image load
         // itemsWithImage -> WebCatItems
         
-        print(self.webCatItems)
+        let name = currentUserNameTest.value
+        
+        print("lastUserName", self.lastUserName)
+        
+        print("currentUserNameTest", name)
+        
+        if self.lastUserName == name {
+            return
+        }
+        
+        self.lastUserName = name
+        
+        print("isEmptyCurrentUser", self.isEmptyCurrentUser.value)
+        
+        if self.isEmptyCurrentUser.value {
+            self.filteredWebCatItems.accept([])
+            return
+        }
+        
+        
         
         Observable.just(self.webCatItems)
             .subscribe(onNext: { items in
@@ -59,7 +91,9 @@ class WebCatViewModel {
                     }
                 }
                 
-                self.filteredWebCatItems.onNext(items)
+                print(items)
+                
+                self.filteredWebCatItems.accept(items)
             })
             .disposed(by: self.bag)
         

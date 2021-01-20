@@ -8,6 +8,7 @@ target 'CourseTimeTable' do
   pod 'RxSwift'
   pod 'RxCocoa'
   pod 'SnapKit'
+  pod 'RealmSwift'
 
   # Pods for CourseTimeTable
 

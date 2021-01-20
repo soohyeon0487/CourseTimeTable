@@ -54,21 +54,7 @@ class ViewController: UIViewController {
     }
     
     func loadUserList() {
-        
-        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
-            return
-        }
-        
-        let userDefault = UserDefaults.standard
-        let savedUserList = userDefault.stringArray(forKey: UserInfoKey.userList)
-        
-        if savedUserList?.count == 0 {
-            return
-        }
-        
-        savedUserList.map {
-            appDelegate.userNameList.append(contentsOf: $0)
-        }
+        userNameListTest.accept(UserDefaults.standard.stringArray(forKey: UserInfoKey.userList) ?? [String]())
     }
     
     

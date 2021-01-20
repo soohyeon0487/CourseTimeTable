@@ -14,8 +14,6 @@ class ProfileViewController: UIViewController {
     
     // MARK: - Property
     
-    var appDelegate: AppDelegate? = nil
-    
     let viewModel = ProfileViewModel()
     
     var bag = DisposeBag()
@@ -146,19 +144,13 @@ class ProfileViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        self.appDelegate = UIApplication.shared.delegate as? AppDelegate
-        
         self.drawUI()
         self.bindUI()
+        self.bindUIForPicker()
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        self.userPicker.reloadAllComponents()
-        self.viewModel.changeUser(name:UserInfoKey.currentUser)
-    }
-    
-    override func viewWillDisappear(_ animated: Bool) {
-        //self.bag = DisposeBag()
+        self.viewModel.changeUser(name:currentUserNameTest.value)
     }
     
     // MARK: - Draw UI Function
@@ -175,8 +167,6 @@ class ProfileViewController: UIViewController {
     func drawNavigationBar() {
         
         self.navigationItem.title = "사용자 정보"
-        
-        
         
         let createBtn = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(self.showCreateUserView(_:)))
         
@@ -329,8 +319,6 @@ class ProfileViewController: UIViewController {
             subView.height.equalTo(300)
         })
         
-        self.userPicker.dataSource = self
-        self.userPicker.delegate = self
         self.okBtn.addTarget(self, action: #selector(self.choice(_:)), for: .touchUpInside)
         self.closeBtn.addTarget(self, action: #selector(self.toggleUserPickerView(_:)), for: .touchUpInside)
         
@@ -410,30 +398,18 @@ class ProfileViewController: UIViewController {
             .bind(to: self.profileImageView.rx.image)
             .disposed(by: self.bag)
         
-        self.viewModel.profile
-            .map({ $0.name })
-            .map({ $0 == "" })
+        self.viewModel.isEmptyCurrentUser
             .map({ !$0 })
             .bind(to: self.profileImageView.rx.isUserInteractionEnabled)
             .disposed(by: self.bag)
         
-        self.viewModel.profile
-            .map({ $0.name })
-            .map({ $0 == "" })
+        self.viewModel.isEmptyCurrentUser
             .map({ !$0 })
             .bind(to: self.guideView.rx.isHidden)
             .disposed(by: self.bag)
         
-        self.viewModel.profile
-            .map({ $0.name })
-            .map({ $0 == "" })
+        self.viewModel.isEmptyCurrentUser
             .bind(to: self.removeUserBtn.rx.isHidden)
-            .disposed(by: self.bag)
-        
-        self.userPicker.rx.itemSelected
-            .subscribe(onNext: { row, _ in
-                self.viewModel.userPickerRow.onNext(row)
-            })
             .disposed(by: self.bag)
     }
     
@@ -479,7 +455,7 @@ class ProfileViewController: UIViewController {
     
     @objc func tabGuide(_ sender: UIButton) {
         
-        if self.appDelegate?.userNameList.count == 0 {
+        if userNameListTest.value.count == 0 {
             self.showCreateUserView(self)
         } else {
             self.toggleUserPickerView(self)
@@ -487,21 +463,16 @@ class ProfileViewController: UIViewController {
     }
     
     @objc func clickedRemoveUserButton(_ sender: UIButton) {
-        self.viewModel.deleteUser() {
-            //self.drawUI()
-            //self.bindUI()
-        }
+        self.viewModel.deleteUser()
     }
     
     @objc func choice(_ sender: Any) {
         
         self.viewModel.choiceUser() { result in
             
-            if result {
-                self.toggleUserPickerView(self)
-                //self.bindUI()
-            } else {
-                self.toggleUserPickerView(self)
+            self.toggleUserPickerView(self)
+            
+            if !(result) {
                 self.showCreateUserView(self)
             }
         }
@@ -520,6 +491,28 @@ class ProfileViewController: UIViewController {
 }
 
 // MARK: - Extension
+
+extension ProfileViewController {
+    
+    func bindUIForPicker() {
+        
+        self.userPicker.dataSource = nil
+        self.userPicker.delegate = nil
+        
+        _ = self.userPicker.rx.itemSelected
+            .subscribe(onNext: { row, _ in
+                self.viewModel.userPickerRow.onNext(row)
+            })
+        
+        _ = userNameListTest
+            .bind(to: self.userPicker.rx.itemTitles) { _, item in
+                print(item)
+                return item
+            }
+        
+    }
+    
+}
 
 extension ProfileViewController : UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
@@ -542,33 +535,5 @@ extension ProfileViewController : UIImagePickerControllerDelegate, UINavigationC
         }
         
         picker.dismiss(animated: true)
-    }
-}
-
-extension ProfileViewController : UIPickerViewDelegate, UIPickerViewDataSource {
-    
-    func numberOfComponents(in pickerView: UIPickerView) -> Int {
-        return 1
-    }
-    
-    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
-        
-        guard let count = appDelegate?.userNameList.count else {
-            return 1
-        }
-        return count + 1
-    }
-    
-    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
-        
-        guard let count = appDelegate?.userNameList.count else {
-            return "사용자 추가"
-        }
-        
-        if row == count {
-            return "사용자 추가"
-        }
-        
-        return appDelegate?.userNameList[row]
     }
 }

@@ -318,7 +318,6 @@ class CreateUserViewController: UIViewController {
     // MARK: - #Selector Function
     
     @objc func close(_ sender: Any) {
-        
         self.presentingViewController?.dismiss(animated: true)
     }
     

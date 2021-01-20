@@ -13,9 +13,9 @@ class ProfileViewModel {
     
     // MARK: - Property
     
-    var appDelegate: AppDelegate? = nil
+    let profile = BehaviorRelay(value: Profile(name: ""))
     
-    let profile = BehaviorSubject(value: Profile(name: ""))
+    let isEmptyCurrentUser = BehaviorRelay(value: false)
     
     let userPickerRow = BehaviorSubject(value: 0)
     
@@ -24,35 +24,21 @@ class ProfileViewModel {
     // MARK: - Init
     
     init() {
-        self.appDelegate = UIApplication.shared.delegate as? AppDelegate
+        currentUserNameTest
+            .map({ $0 == "" })
+            .bind(to: self.isEmptyCurrentUser)
+            .disposed(by: self.bag)
     }
     
     // MARK: - Logic
     
     func changeUser(name: String) {
         
-        let currentUserName = UserDefaults.standard.string(forKey: UserInfoKey.currentUser)
-        
-        var input = name
-        
-        // 사용자 변화 체크
-        self.profile
-            .subscribe(onNext: {
-                if $0.name == currentUserName {
-                    return
-                }
-            })
-            .disposed(by: self.bag)
-        
-        if input == UserInfoKey.currentUser {
-            input = currentUserName ?? ""
-        }
-        
-        if input == "" {
+        if name == "" {
             return
         }
         
-        let customPlist = "\(input).plist"
+        let customPlist = "\(name).plist"
         
         let paths = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)
         
@@ -60,7 +46,7 @@ class ProfileViewModel {
         let filePath = path.strings(byAppendingPaths: [customPlist]).first!
         let data = NSMutableDictionary(contentsOfFile: filePath) ?? NSMutableDictionary()
         
-        Observable.just(input)
+        Observable.just(name)
             .subscribe(on: MainScheduler.instance)
             .subscribe(onNext: { newName in
                 
@@ -71,24 +57,25 @@ class ProfileViewModel {
                     grade: data.value(forKey: UserInfoKey.grade) as? Int ?? 1,
                     semester: data.value(forKey: UserInfoKey.semester) as? Int ?? 1
                 )
+                
                 if let profileImageData = data.value(forKey: UserInfoKey.profileImage) as? Data {
                     newProfile.setImage(image: UIImage(data: profileImageData))
                 } else {
                     newProfile.setImage(image: nil)
                 }
                 
-                self.profile.onNext(newProfile)
+                self.profile.accept(newProfile)
             })
             .disposed(by: self.bag)
     }
     
-    func deleteUser(completion: @escaping() -> Void) {
+    func deleteUser() {
         
-        let name = UserDefaults.standard.string(forKey: UserInfoKey.currentUser) ?? ""
+        print("")
         
-        let global = UIApplication.shared.delegate as? AppDelegate
+        let name = currentUserNameTest.value
         
-        if let index = global?.userNameList.firstIndex(of: name) {
+        if let index = userNameListTest.value.firstIndex(of: name) {
             
             let customPlist = "\(name).plist"
             
@@ -100,12 +87,21 @@ class ProfileViewModel {
             let filemanager = FileManager.default
             
             do {
+                currentUserNameTest.accept("")
+                UserDefaults.standard.setValue(currentUserNameTest.value, forKey: UserInfoKey.currentUser)
                 
-                global?.userNameList.remove(at: index)
-                
-                UserDefaults.standard.setValue(global?.userNameList, forKey: UserInfoKey.userList)
-                UserDefaults.standard.setValue("", forKey: UserInfoKey.currentUser)
+                var newUserListTest = userNameListTest.value
+                newUserListTest.remove(at: index)
+                userNameListTest.accept(newUserListTest)
+                UserDefaults.standard.setValue(userNameListTest.value, forKey: UserInfoKey.userList)
                 UserDefaults.standard.synchronize()
+                
+                self.profile
+                    .subscribe(on: MainScheduler.instance)
+                    .subscribe(onNext: { profile in
+                        profile.clear()
+                    })
+                    .disposed(by: self.bag)
                 
                 try filemanager.removeItem(atPath: filePath)
                 
@@ -113,15 +109,8 @@ class ProfileViewModel {
                 print("[Error \(#file):\(#function):\(#line)] 파일 삭제 \n\(filePath)\n\(error.localizedDescription)")
             }
             
-            self.profile
-                .subscribe(on: MainScheduler.instance)
-                .subscribe(onNext: { profile in
-                    profile.clear()
-                })
-                .disposed(by: self.bag)
+            
         }
-        
-        completion()
     }
     
     func changeProfileImage(image: UIImage, completion: @escaping() -> Void) {
@@ -155,13 +144,10 @@ class ProfileViewModel {
         
         self.userPickerRow
             .subscribe(onNext: {
-                if self.appDelegate?.userNameList.count == $0 {
-                    result = false
-                } else {
-                    UserDefaults.standard.setValue(self.appDelegate?.userNameList[$0], forKey: UserInfoKey.currentUser)
-                    UserDefaults.standard.synchronize()
-                    self.changeUser(name: UserInfoKey.currentUser)
-                }
+                currentUserNameTest.accept(userNameListTest.value[$0])
+                UserDefaults.standard.setValue(userNameListTest.value[$0], forKey: UserInfoKey.currentUser)
+                UserDefaults.standard.synchronize()
+                self.changeUser(name: currentUserNameTest.value)
             })
             .disposed(by: self.bag)
         

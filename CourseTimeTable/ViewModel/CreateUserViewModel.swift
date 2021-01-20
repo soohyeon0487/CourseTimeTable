@@ -67,9 +67,17 @@ class CreateUserViewModel {
         self.nameText
             .subscribe(onNext: {
                 customPlist = "\($0).plist"
-                self.appDelegate?.userNameList.append($0)
-                UserDefaults.standard.setValue($0, forKey: UserInfoKey.currentUser)
-                UserDefaults.standard.setValue(self.appDelegate?.userNameList, forKey: UserInfoKey.userList)
+                
+                print(#function, #line, $0)
+                
+                currentUserNameTest.accept($0)
+                UserDefaults.standard.setValue(currentUserNameTest.value, forKey: UserInfoKey.currentUser)
+                
+                var newUserListTest = userNameListTest.value
+                newUserListTest.append($0)
+                userNameListTest.accept(newUserListTest)
+                UserDefaults.standard.setValue(userNameListTest.value, forKey: UserInfoKey.userList)
+                
                 UserDefaults.standard.synchronize()
             })
             .disposed(by: self.bag)

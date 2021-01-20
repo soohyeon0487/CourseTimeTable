@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		4E8585DA4285AC321F797684 /* Pods_CourseTimeTable.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D5CE8900D840A972033F8CE0 /* Pods_CourseTimeTable.framework */; };
+		911F1CDE25B8163B0052AC92 /* UserDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 911F1CDD25B8163B0052AC92 /* UserDataManager.swift */; };
 		912A7FE225B4C0650031D7A4 /* ProfileInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 912A7FE125B4C0650031D7A4 /* ProfileInfo.swift */; };
 		915FF02D25B29E8B00A20A3A /* CreateUserViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 915FF02C25B29E8B00A20A3A /* CreateUserViewModel.swift */; };
 		916DD19B25B1705E0087D96D /* AddCourseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 916DD19A25B1705E0087D96D /* AddCourseViewController.swift */; };
@@ -30,6 +31,7 @@
 
 /* Begin PBXFileReference section */
 		2F5A673EC3937ACE45CBA90C /* Pods-CourseTimeTable.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CourseTimeTable.release.xcconfig"; path = "Target Support Files/Pods-CourseTimeTable/Pods-CourseTimeTable.release.xcconfig"; sourceTree = "<group>"; };
+		911F1CDD25B8163B0052AC92 /* UserDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDataManager.swift; sourceTree = "<group>"; };
 		912A7FE125B4C0650031D7A4 /* ProfileInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileInfo.swift; sourceTree = "<group>"; };
 		915FF02C25B29E8B00A20A3A /* CreateUserViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateUserViewModel.swift; sourceTree = "<group>"; };
 		916DD19A25B1705E0087D96D /* AddCourseViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCourseViewController.swift; sourceTree = "<group>"; };
@@ -79,6 +81,7 @@
 			children = (
 				919F5CE025B6B15D00F3180F /* WebCat.swift */,
 				912A7FE125B4C0650031D7A4 /* ProfileInfo.swift */,
+				911F1CDD25B8163B0052AC92 /* UserDataManager.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -86,8 +89,8 @@
 		912A7FD925B4C0060031D7A4 /* ViewModel */ = {
 			isa = PBXGroup;
 			children = (
-				919F5CEE25B6D31000F3180F /* WebCatViewModel.swift */,
 				915FF02C25B29E8B00A20A3A /* CreateUserViewModel.swift */,
+				919F5CEE25B6D31000F3180F /* WebCatViewModel.swift */,
 				916DD19D25B1721F0087D96D /* ProfileViewModel.swift */,
 			);
 			path = ViewModel;
@@ -277,6 +280,7 @@
 				916DD1A225B176510087D96D /* ProfileViewController.swift in Sources */,
 				916DD19E25B1721F0087D96D /* ProfileViewModel.swift in Sources */,
 				919F5CF325B6FCCD00F3180F /* WebCatDetailViewController.swift in Sources */,
+				911F1CDE25B8163B0052AC92 /* UserDataManager.swift in Sources */,
 				91E6634425B167AA002F6C47 /* ViewController.swift in Sources */,
 				912A7FE225B4C0650031D7A4 /* ProfileInfo.swift in Sources */,
 				915FF02D25B29E8B00A20A3A /* CreateUserViewModel.swift in Sources */,
