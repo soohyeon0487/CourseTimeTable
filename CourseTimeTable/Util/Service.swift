@@ -15,13 +15,15 @@ class Service {
     
     // MARK: - Method
     
-    func requestWebCatImage(url: String, completion: @escaping(UIImage) -> ()) {
+    func requestWebCatImage(url: String, completion: @escaping(Data) -> Void) {
         
         self.requestUrl(with: url) { data in
             
-            guard let image = UIImage(data: data) else { return }
+            if data.count == 0 {
+                return
+            }
             
-            completion(image)
+            completion(data)
         }
     }
     

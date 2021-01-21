@@ -16,13 +16,9 @@ class WebCatViewModel {
     
     var bag = DisposeBag()
     
-    var webCatItems = [WebCat]()
-    
     let filteredWebCatItems = BehaviorRelay(value: [WebCat]())
     
     let isEmptyCurrentUser = BehaviorRelay(value: false)
-    
-    var lastUserName = ""
     
     // MARK: - Init
     
@@ -35,15 +31,9 @@ class WebCatViewModel {
     
     // MARK: - Logic
     
-    private func loadImage(item: WebCat) {
-        Service.shared.requestWebCatImage(url: item.imageUrl) {
-            item.image = $0
-        }
-    }
-    
-    func reLoadItems() {
+    func reloadItems() {
         self.filteredWebCatItems
-            .accept(self.webCatItems)
+            .accept(webCatList.value)
     }
     
     func loadUserData() {
@@ -58,39 +48,48 @@ class WebCatViewModel {
     
     func loadWebCatDataByName() {
         
-        let name = currentUserName.value
-        
-        if self.lastUserName == name {
-            return
-        }
-        
-        self.lastUserName = name
-        
         if self.isEmptyCurrentUser.value {
             self.filteredWebCatItems.accept([])
             return
         }
         
-        self.webCatItems = self.manager.selectWebCatData(name: name) { result in
+        webCatList.accept(self.manager.selectWebCatData(name: currentUserName.value) { result in
             if result {
                 print(#function, #line, "SUCCESS : WEBCAT SELECT")
             } else {
                 print(#function, #line, "ERROR : WEBCAT SELECT")
             }
+        })
+        
+        self.filteredWebCatItems.accept(webCatList.value)
+    }
+    
+    func loadWebCatImage() {
+        
+        var newList = [WebCat]()
+        
+        webCatList.value.forEach { item in
+            
+            if item.image == nil {
+                Service.shared.requestWebCatImage(url: item.imageUrl) { data in
+                    item.setImage(imageData: data)
+                }
+            }
+            newList.append(item)
         }
         
-        Observable.just(self.webCatItems)
-            .subscribe(onNext: { items in
-                
-                _ = items.map {
-                    if $0.image == nil {
-                        self.loadImage(item: $0)
-                    }
-                }
-                
-                self.filteredWebCatItems.accept(items)
-            })
-            .disposed(by: self.bag)
+        webCatList.accept(newList)
+        filteredWebCatItems.accept(newList)
+    }
+    
+    func addWebCat(newWebCat: WebCat) {
         
+        self.manager.insertWebCatData(webCat: newWebCat)
+        
+        var newWebCatList = webCatList.value
+        newWebCatList.append(newWebCat)
+        webCatList.accept(newWebCatList)
+        
+        self.loadWebCatImage()
     }
 }

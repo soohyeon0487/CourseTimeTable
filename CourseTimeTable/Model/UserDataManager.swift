@@ -15,6 +15,8 @@ let currentUserName = BehaviorRelay(value: "")
 
 let userList = BehaviorRelay(value: [User]())
 
+let webCatList = BehaviorRelay(value: [WebCat]())
+
 class UserData: Object {
     
     @objc dynamic var name = ""
@@ -147,21 +149,6 @@ class UserDataManager {
         completion(true)
     }
     
-    func selectWebCatData(name: String = "", completion: @escaping (Bool) -> Void = { _ in }) -> [WebCat] {
-        
-        let webCatData = realm.objects(WebCatData.self).filter("userName CONTAINS[cd] %@", currentUserName.value)
-        
-        var newWebCatList = [WebCat]()
-        
-        webCatData.forEach {
-            newWebCatList.append(WebCat.init(title: $0.title, width: $0.width, height: $0.height))
-        }
-        
-        completion(true)
-        
-        return newWebCatList
-    }
-    
     func insertWebCatData(webCat: WebCat, completion: @escaping (Bool) -> Void = { _ in }) {
         
         let newWebCatData = WebCatData()
@@ -178,8 +165,22 @@ class UserDataManager {
         } catch {
             completion(false)
         }
+        completion(true)
+    }
+    
+    func selectWebCatData(name: String = "", completion: @escaping (Bool) -> Void = { _ in }) -> [WebCat] {
+        
+        let webCatData = realm.objects(WebCatData.self).filter("userName CONTAINS[cd] %@", currentUserName.value).sorted(byKeyPath: "title", ascending: true)
+        
+        var newWebCatList = [WebCat]()
+        
+        webCatData.forEach {
+            newWebCatList.append(WebCat.init(title: $0.title, width: $0.width, height: $0.height))
+        }
         
         completion(true)
+        
+        return newWebCatList
     }
     
     func deleteWebCatData(webCatUUID: UUID, completion: @escaping (Bool) -> Void = { _ in }) {

@@ -31,7 +31,7 @@ class WebCat {
     
     // MARK: - Method
     
-    func setImage(image: UIImage) {
-        self.image = image
+    func setImage(imageData: Data) {
+        self.image = UIImage(data: imageData)
     }
 }

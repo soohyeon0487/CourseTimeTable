@@ -11,7 +11,6 @@
 		911F1CDE25B8163B0052AC92 /* UserDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 911F1CDD25B8163B0052AC92 /* UserDataManager.swift */; };
 		912A7FE225B4C0650031D7A4 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 912A7FE125B4C0650031D7A4 /* User.swift */; };
 		915FF02D25B29E8B00A20A3A /* CreateUserViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 915FF02C25B29E8B00A20A3A /* CreateUserViewModel.swift */; };
-		916DD19B25B1705E0087D96D /* AddCourseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 916DD19A25B1705E0087D96D /* AddCourseViewController.swift */; };
 		916DD19E25B1721F0087D96D /* ProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 916DD19D25B1721F0087D96D /* ProfileViewModel.swift */; };
 		916DD1A225B176510087D96D /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 916DD1A125B176510087D96D /* ProfileViewController.swift */; };
 		916DD1AB25B1BC000087D96D /* CreateUserViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 916DD1AA25B1BC000087D96D /* CreateUserViewController.swift */; };
@@ -34,7 +33,6 @@
 		911F1CDD25B8163B0052AC92 /* UserDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDataManager.swift; sourceTree = "<group>"; };
 		912A7FE125B4C0650031D7A4 /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		915FF02C25B29E8B00A20A3A /* CreateUserViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateUserViewModel.swift; sourceTree = "<group>"; };
-		916DD19A25B1705E0087D96D /* AddCourseViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCourseViewController.swift; sourceTree = "<group>"; };
 		916DD19D25B1721F0087D96D /* ProfileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewModel.swift; sourceTree = "<group>"; };
 		916DD1A125B176510087D96D /* ProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
 		916DD1AA25B1BC000087D96D /* CreateUserViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateUserViewController.swift; sourceTree = "<group>"; };
@@ -147,7 +145,6 @@
 				912A7FDA25B4C00D0031D7A4 /* View */,
 				912A7FD925B4C0060031D7A4 /* ViewModel */,
 				919F5CDA25B6AA4E00F3180F /* Util */,
-				916DD19A25B1705E0087D96D /* AddCourseViewController.swift */,
 				919F5CF225B6FCCD00F3180F /* WebCatDetailViewController.swift */,
 			);
 			path = CourseTimeTable;
@@ -285,7 +282,6 @@
 				915FF02D25B29E8B00A20A3A /* CreateUserViewModel.swift in Sources */,
 				919F5CE825B6B1AF00F3180F /* WebCatCell.swift in Sources */,
 				916DD1AB25B1BC000087D96D /* CreateUserViewController.swift in Sources */,
-				916DD19B25B1705E0087D96D /* AddCourseViewController.swift in Sources */,
 				919F5CE125B6B15D00F3180F /* WebCat.swift in Sources */,
 				919F5CEF25B6D31000F3180F /* WebCatViewModel.swift in Sources */,
 				919F5CDE25B6AEE600F3180F /* Service.swift in Sources */,

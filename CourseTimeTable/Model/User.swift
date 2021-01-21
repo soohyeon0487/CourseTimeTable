@@ -11,12 +11,6 @@ import UIKit
 
 struct UserInfoKey {
     static let currentUser = "#CurrentUserName"
-    static let userList = "#UserList"
-    static let name = "#UserName"
-    static let email = "#UserEmail"
-    static let grade = "#UserGrade"
-    static let semester = "#UserSemester"
-    static let profileImage = "#UserProfileImage"
 }
 
 // MARK: - Class

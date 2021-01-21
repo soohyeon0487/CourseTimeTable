@@ -48,22 +48,16 @@ class ProfileViewModel {
                 self.profile.accept($0)
             })
             .disposed(by: self.bag)
+        
+        webCatList.accept(self.manager.selectWebCatData(name: newUserName))
     }
     
     func deleteUser() {
         
         let deletingName = profile.value.name!
         
-        self.profile
-            .subscribe(on: MainScheduler.instance)
-            .subscribe(onNext: { profile in
-                profile.clear()
-            })
-            .disposed(by: self.bag)
+        self.profile.accept(User(name: ""))
     
-        // userList에서 삭제
-    
-        // realm에서 삭제
         self.manager.deleteUserData(deletingName: deletingName) { result in
             if result {
                 print(#function, #line, "SUCCESS : USERLIST DELETE")
@@ -71,6 +65,10 @@ class ProfileViewModel {
                 print(#function, #line, "ERROR : USERLIST DELETE")
             }
         }
+        
+        currentUserName.accept("")
+        userList.accept(self.manager.selectUserData())
+        self.userPickerRow = 0
     }
     
     func changeProfileImage(image: UIImage) {
@@ -93,6 +91,10 @@ class ProfileViewModel {
     }
     
     func choiceUser(completion: @escaping(Bool) -> Void = { _ in }) {
+        
+        if self.userPickerRow >= userList.value.count {
+            return
+        }
         
         currentUserName.accept(userList.value[self.userPickerRow].name)
         UserDefaults.standard.setValue(userList.value[self.userPickerRow].name, forKey: UserInfoKey.currentUser)
