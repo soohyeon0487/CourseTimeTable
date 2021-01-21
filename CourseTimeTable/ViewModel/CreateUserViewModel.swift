@@ -10,19 +10,19 @@ import RxCocoa
 
 class CreateUserViewModel {
     
+    let manager = UserDataManager.shared
+    
     // MARK: - Property
     
     var appDelegate: AppDelegate? = nil
     
-    let profile = BehaviorSubject(value: Profile(name: ""))
-    
     let bag = DisposeBag()
     
     // input
-    let nameText = BehaviorSubject(value: "")
-    let emailText = BehaviorSubject(value: "")
-    let gradeValue = BehaviorSubject(value: 1)
-    let semesterValue = BehaviorSubject(value: 0)
+    let nameText = BehaviorRelay(value: "")
+    let emailText = BehaviorRelay(value: "")
+    let gradeValue = BehaviorRelay(value: 1)
+    let semesterValue = BehaviorRelay(value: 0)
     
     // output
     let isNameValid = BehaviorSubject(value: false)
@@ -59,60 +59,23 @@ class CreateUserViewModel {
         return emailTest.evaluate(with: email)
     }
     
-    func createUser(completion: @escaping() -> ()) {
+    func createUser(completion: @escaping() -> Void = { }) {
         
-        // 이름으로 생성된 plist 파일에 저장
-        var customPlist = ""
+        let newUser = User(name: self.nameText.value)
+        newUser.setProfile(email: self.emailText.value,
+                           grade: self.gradeValue.value,
+                           semester: self.semesterValue.value)
         
-        self.nameText
-            .subscribe(onNext: {
-                customPlist = "\($0).plist"
-                
-                print(#function, #line, $0)
-                
-                currentUserNameTest.accept($0)
-                UserDefaults.standard.setValue(currentUserNameTest.value, forKey: UserInfoKey.currentUser)
-                
-                var newUserListTest = userNameListTest.value
-                newUserListTest.append($0)
-                userNameListTest.accept(newUserListTest)
-                UserDefaults.standard.setValue(userNameListTest.value, forKey: UserInfoKey.userList)
-                
-                UserDefaults.standard.synchronize()
-            })
-            .disposed(by: self.bag)
+        self.manager.insertUserData(newUser: newUser) { result in
+            if result {
+                print(#function, #line, "SUCCESS : USERLIST INSERT")
+            } else {
+                print(#function, #line, "ERROR : USERLIST INSERT")
+            }
+        }
         
-        let paths = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)
-        
-        let path = paths[0] as NSString
-        let filePath = path.strings(byAppendingPaths: [customPlist]).first!
-        let data = NSMutableDictionary(contentsOfFile: filePath) ?? NSMutableDictionary()
-        
-        self.nameText
-            .subscribe(onNext: {
-                data.setValue($0, forKey: UserInfoKey.name)
-            })
-            .disposed(by: self.bag)
-        
-        self.emailText
-            .subscribe(onNext: {
-                data.setValue($0, forKey: UserInfoKey.email)
-            })
-            .disposed(by: self.bag)
-        
-        self.gradeValue
-            .subscribe(onNext: {
-                data.setValue($0, forKey: UserInfoKey.grade)
-            })
-            .disposed(by: self.bag)
-        
-        self.semesterValue
-            .subscribe(onNext: {
-                data.setValue($0, forKey: UserInfoKey.semester)
-            })
-            .disposed(by: self.bag)
-        
-        data.write(toFile: filePath, atomically: true)
+        userList.accept(self.manager.selectUserData())
+        currentUserName.accept(newUser.name)
         
         completion()
     }

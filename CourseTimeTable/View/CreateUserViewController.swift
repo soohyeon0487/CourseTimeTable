@@ -265,13 +265,13 @@ class CreateUserViewController: UIViewController {
         
         self.gradePicker.rx.itemSelected
             .subscribe(onNext: { row, _ in
-                self.viewModel.gradeValue.onNext(self.gradeList[row])
+                self.viewModel.gradeValue.accept(self.gradeList[row])
             })
             .disposed(by: self.bag)
         
         self.semesterPicker.rx.itemSelected
             .subscribe(onNext: { row, _ in
-                self.viewModel.semesterValue.onNext(row)
+                self.viewModel.semesterValue.accept(row)
             })
             .disposed(by: self.bag)
         

@@ -5,8 +5,8 @@
 //  Created by Soohyeon Lee on 2021/01/19.
 //
 
-import Foundation
 import UIKit
+import SnapKit
 
 class WebCatCell: UICollectionViewCell {
     

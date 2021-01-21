@@ -5,22 +5,18 @@
 //  Created by Soohyeon Lee on 2021/01/19.
 //
 
-import Foundation
-import UIKit
 import RxSwift
 import RxCocoa
 
 class WebCatViewModel {
     
+    let manager = UserDataManager.shared
+    
     // MARK: - Property
     
     var bag = DisposeBag()
     
-    var webCatItems = [
-        WebCat(title: "Test1", width: 100, height: 150),
-        WebCat(title: "Test2", width: 250, height: 200),
-        WebCat(title: "Test3", width: 300, height: 300)
-    ]
+    var webCatItems = [WebCat]()
     
     let filteredWebCatItems = BehaviorRelay(value: [WebCat]())
     
@@ -31,7 +27,7 @@ class WebCatViewModel {
     // MARK: - Init
     
     init() {
-        currentUserNameTest
+        currentUserName
             .map({ $0 == "" })
             .bind(to: self.isEmptyCurrentUser)
             .disposed(by: self.bag)
@@ -39,11 +35,10 @@ class WebCatViewModel {
     
     // MARK: - Logic
     
-    private func loadImage(item: WebCat) -> WebCat {
+    private func loadImage(item: WebCat) {
         Service.shared.requestWebCatImage(url: item.imageUrl) {
             item.image = $0
         }
-        return item
     }
     
     func reLoadItems() {
@@ -52,20 +47,18 @@ class WebCatViewModel {
     }
     
     func loadUserData() {
-        currentUserNameTest.accept(UserDefaults.standard.string(forKey: UserInfoKey.currentUser) ?? "")
-        userNameListTest.accept(UserDefaults.standard.stringArray(forKey: UserInfoKey.userList) ?? [String]())
+        userList.accept(manager.selectUserData() {result in
+            if result {
+                print(#function, #line, "SUCCESS : USERLIST SELECT")
+            } else {
+                print(#function, #line, "ERROR : USERLIST SELECT")
+            }
+        })
     }
     
     func loadWebCatDataByName() {
-        // SQL(name) -> items 입력
-        // items -> Image load
-        // itemsWithImage -> WebCatItems
         
-        let name = currentUserNameTest.value
-        
-        print("lastUserName", self.lastUserName)
-        
-        print("currentUserNameTest", name)
+        let name = currentUserName.value
         
         if self.lastUserName == name {
             return
@@ -73,25 +66,27 @@ class WebCatViewModel {
         
         self.lastUserName = name
         
-        print("isEmptyCurrentUser", self.isEmptyCurrentUser.value)
-        
         if self.isEmptyCurrentUser.value {
             self.filteredWebCatItems.accept([])
             return
         }
         
-        
+        self.webCatItems = self.manager.selectWebCatData(name: name) { result in
+            if result {
+                print(#function, #line, "SUCCESS : WEBCAT SELECT")
+            } else {
+                print(#function, #line, "ERROR : WEBCAT SELECT")
+            }
+        }
         
         Observable.just(self.webCatItems)
             .subscribe(onNext: { items in
                 
-                items.map {
+                _ = items.map {
                     if $0.image == nil {
                         self.loadImage(item: $0)
                     }
                 }
-                
-                print(items)
                 
                 self.filteredWebCatItems.accept(items)
             })

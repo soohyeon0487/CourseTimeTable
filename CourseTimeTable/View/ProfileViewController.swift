@@ -9,7 +9,6 @@ import UIKit
 import RxSwift
 import RxCocoa
 
-
 class ProfileViewController: UIViewController {
     
     // MARK: - Property
@@ -25,6 +24,11 @@ class ProfileViewController: UIViewController {
     // MARK: - UI Property
     
     let profileImageView = UIImageView()
+    
+    let changeBtn: UIBarButtonItem = {
+        let view = UIBarButtonItem(barButtonSystemItem: .refresh, target: nil, action: nil)
+        return view
+    }()
     
     let nameLabel: UILabel = {
         let view = UILabel()
@@ -150,7 +154,7 @@ class ProfileViewController: UIViewController {
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        self.viewModel.changeUser(name:currentUserNameTest.value)
+        self.viewModel.changeUser(newUserName:currentUserName.value)
     }
     
     // MARK: - Draw UI Function
@@ -170,7 +174,10 @@ class ProfileViewController: UIViewController {
         
         let createBtn = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(self.showCreateUserView(_:)))
         
-        self.navigationItem.rightBarButtonItem = createBtn
+        self.changeBtn.target = self
+        self.changeBtn.action = #selector(self.toggleUserPickerView(_:))
+        
+        self.navigationItem.rightBarButtonItems = [createBtn, changeBtn]
     }
     
     func drawProfileImageView() {
@@ -202,9 +209,7 @@ class ProfileViewController: UIViewController {
             subView.width.centerX.equalToSuperview()
             subView.height.equalTo(200)
         })
-        
-        nameValue.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(self.toggleUserPickerView(_:))))
-        
+    
         userInfoView.addSubview(self.nameLabel)
         userInfoView.addSubview(self.emailLabel)
         userInfoView.addSubview(self.registerLabel)
@@ -357,6 +362,11 @@ class ProfileViewController: UIViewController {
     
     func bindUI() {
         
+        Observable.just(userList.value)
+            .map { $0.count != 0 }
+            .bind(to: self.changeBtn.rx.isEnabled)
+            .disposed(by: bag)
+        
         self.viewModel.profile
             .map({ $0.name })
             .bind(to: self.nameValue.rx.text)
@@ -455,7 +465,7 @@ class ProfileViewController: UIViewController {
     
     @objc func tabGuide(_ sender: UIButton) {
         
-        if userNameListTest.value.count == 0 {
+        if userList.value.count == 0 {
             self.showCreateUserView(self)
         } else {
             self.toggleUserPickerView(self)
@@ -501,13 +511,12 @@ extension ProfileViewController {
         
         _ = self.userPicker.rx.itemSelected
             .subscribe(onNext: { row, _ in
-                self.viewModel.userPickerRow.onNext(row)
+                self.viewModel.userPickerRow = row
             })
         
-        _ = userNameListTest
+        _ = userList
             .bind(to: self.userPicker.rx.itemTitles) { _, item in
-                print(item)
-                return item
+                return item.name
             }
         
     }
@@ -529,9 +538,7 @@ extension ProfileViewController : UIImagePickerControllerDelegate, UINavigationC
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         
         if let img = info[UIImagePickerController.InfoKey.editedImage] as? UIImage {
-            self.viewModel.changeProfileImage(image: img) {
-                //self.bindUI()
-            }
+            self.viewModel.changeProfileImage(image: img)
         }
         
         picker.dismiss(animated: true)

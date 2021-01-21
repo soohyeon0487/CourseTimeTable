@@ -15,6 +15,14 @@ class WebCatViewController: UICollectionViewController {
     
     // MARK: - Property
     
+    let viewModel = WebCatViewModel()
+    
+    var bag = DisposeBag()
+    
+    var isSearchMode = false
+    
+    // MARK: - UI Property
+    
     let searchBar: UISearchBar = {
         let view = UISearchBar()
         view.sizeToFit()
@@ -22,16 +30,6 @@ class WebCatViewController: UICollectionViewController {
         view.tintColor = .black
         return view
     }()
-    
-    let viewModel = WebCatViewModel()
-    
-    var bag = DisposeBag()
-    
-    var isSearchMode = false
-    
-    var currentUserName = ""
-    
-    // MARK: - UI Property
     
     let searchBtn: UIBarButtonItem = {
         let view = UIBarButtonItem(barButtonSystemItem: .search, target: nil, action: nil)
@@ -63,10 +61,6 @@ class WebCatViewController: UICollectionViewController {
         self.viewModel.loadWebCatDataByName()
     }
     
-    override func viewWillDisappear(_ animated: Bool) {
-        //self.navigationItem.title = ""
-    }
-    
     // MARK: - Draw UI Function
     
     func drawUI() {
@@ -74,7 +68,6 @@ class WebCatViewController: UICollectionViewController {
         self.collectionView!.register(WebCatCell.self, forCellWithReuseIdentifier: reuseIdentifier)
         
         self.drawNavigationBar()
-        
     }
     
     func drawNavigationBar() {
@@ -114,10 +107,9 @@ class WebCatViewController: UICollectionViewController {
     // MARK: - Bind UI Function
     
     func bindUI() {
-        currentUserNameTest
+        currentUserName
             .bind(to: self.navigationItem.rx.title)
             .disposed(by: bag)
-        
     }
     
     // MARK: - #Selector Function

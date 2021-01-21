@@ -21,9 +21,13 @@ struct UserInfoKey {
 
 // MARK: - Class
 
-class Profile {
+class User {
     
-    static let profile = Profile(name: "")
+    // MARK: - Singleton
+    
+    static let user = User(name: "")
+    
+    // MARK: - Property
     
     var name: String!
     var email: String?
@@ -31,10 +35,14 @@ class Profile {
     var semester: Int?
     var image: UIImage?
     
+    // MARK: - Init
+    
     init(name: String) {
         self.name = name
         self.image = UIImage(systemName: "person.fill")
     }
+    
+    // MARK: - Method
     
     func setName(name: String?) {
         if let inputName = name {
@@ -75,6 +83,8 @@ class Profile {
             self.image = UIImage(systemName: "person.fill")
             return
         }
+        
+        LOG(image)
         
         self.image = inputImage
     }
